@@ -5,7 +5,7 @@ import NuevoCliente from './Components/NuevoCliente'
 import EditarCliente from './Components/EditarCliente'
 import Login from './SignInSide'
 import Menu from './Components/Menu'
-import Index from './ui'
+// import Index from './ui'
 
  
 

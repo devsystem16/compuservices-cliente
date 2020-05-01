@@ -305,6 +305,7 @@ class Clientes extends Component {
 
 
                 <ModalNuevoCliente
+                    Distritos={this.props.Distritos}
                     Ciudades={this.props.Ciudades}
                     setOpenProps={this.state.setOpenProps}
                     handleCloseModalCliente={this.handleCloseModalCliente}

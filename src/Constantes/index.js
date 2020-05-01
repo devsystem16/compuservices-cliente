@@ -87,3 +87,6 @@ export const ROL_ADMINISTRADOR =  "Administrador"
 export const ROL_HAITECH =  "Haitech"
  
  
+
+// Distritos
+export const API_DISTRITO = apiCompuServices + "distrito"

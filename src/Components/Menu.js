@@ -44,7 +44,7 @@ import PeopleAlt from '@material-ui/icons/NaturePeopleOutlined';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 
 
-import { ROL_HAITECH,API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
+import {API_DISTRITO, ROL_HAITECH,API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
 
 
 const drawerWidth = 240;
@@ -157,7 +157,7 @@ function Menu(props) {
     const [ReportClientesSinFiltro, setReportClientesSF] = useState([])
 
 
-
+    const [Distritos, setDistritos] = useState([])
     const [Ciudades, setCiudades] = useState([])
     const [tiposEquipos, setTiposEquipos] = useState([])
     const [marcas, setMarcas] = useState([])
@@ -265,6 +265,13 @@ function Menu(props) {
 
             }
             Getciudades()
+
+            const GetDistritos = async () => {
+                const resultado = await axios.get(API_DISTRITO)
+                setDistritos(resultado.data)
+
+            }
+            GetDistritos()
 
 
             setRecargarCombos(false)
@@ -512,6 +519,7 @@ function Menu(props) {
                                         <Clientes
                                             titulo="Clientes"
                                             ReportClientes={ReportClientes} Ciudades={Ciudades}
+                                            Distritos={Distritos}
                                             setRecargarClientes={setRecargarClientes}
                                             btnEditar={true}
                                             btnELiminar={true}

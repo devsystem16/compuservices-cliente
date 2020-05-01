@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 // import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -10,7 +10,28 @@ import MenuItem from '@material-ui/core/MenuItem';
 import iziToast from "izitoast";
 import axios from 'axios';
 import uuid from 'uuid/v4'
-import {  API_GET_CLIENTE_CODIGO} from '../../Constantes'
+import { API_GET_CLIENTE_CODIGO } from '../../Constantes'
+
+
+
+//  ppara distrito y colegio.
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
+import Autocomplete from '@material-ui/lab/Autocomplete';
+
+
+
+
+
+
+
+
 
 
 
@@ -24,6 +45,11 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 250,
+  },
+  selectDistritoCiudad: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 500,
   },
   textFieldCi: {
     marginLeft: theme.spacing(1),
@@ -41,6 +67,10 @@ const useStyles = makeStyles(theme => ({
   menu: {
     width: 200,
   },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
 }));
 
 
@@ -48,8 +78,21 @@ const useStyles = makeStyles(theme => ({
 
 
 
-export default function TextFields({ handleClose, Ciudades }) {
- 
+export default function TextFields({ handleClose, Ciudades, Distritos }) {
+
+
+  const [open, setOpenDistrito] = React.useState(false);
+  const [age, setAgeDistrito] = React.useState('');
+  const handleClickOpenDistrito = () => {
+    setOpenDistrito(true);
+  };
+
+  const handleCloseDistrito = () => {
+    setOpenDistrito(false);
+  };
+
+
+
   const classes = useStyles();
   const [values, setValues] = React.useState({
     currency: '',
@@ -72,6 +115,7 @@ export default function TextFields({ handleClose, Ciudades }) {
 
 
   const currencies = Ciudades
+  const currencies1 = Distritos
 
   const cancelar = async e => {
     limpiarCampos()
@@ -89,15 +133,15 @@ export default function TextFields({ handleClose, Ciudades }) {
     setTelefonoCelular('')
     setDireccion('')
     setCorreo('')
-  
+
   }
 
   const agregarProducto = async e => {
     e.preventDefault()
 
-   
 
-    if (values.currency ===""){
+
+    if (values.currency === "") {
       iziToast.error({
         title: 'Campos imcompletos',
         message: 'Seleccione la ciudad',
@@ -106,29 +150,29 @@ export default function TextFields({ handleClose, Ciudades }) {
       });
       return
     }
- 
- 
-    axios.get(API_GET_CLIENTE_CODIGO).then(resultado => {
- 
- 
-          const datos = {
-            'IDCliente': uuid()
-            , 'codigo': resultado.data[0].codigo
-            , 'cedula': cedula
-            , 'nombre1': (primerNombre !== null) ? primerNombre.toUpperCase(): ""   //primerNombre.toUpperCase()
-            , 'nombre2': (segundoNombre !== null) ? segundoNombre.toUpperCase(): ""  //   segundoNombre.toUpperCase()
-            , 'apellidoPaterno': (apellidoPaterno !== null) ? apellidoPaterno.toUpperCase(): "" //apellidoPaterno.toUpperCase()
-            , 'apellidoMaterno': (apellidoMaterno !== null) ? apellidoMaterno.toUpperCase(): "" //apellidoMaterno.toUpperCase()
-            , 'celular': telefonoCelular
-            , 'direccion': (direccion ===  null ) ? "" : direccion.toUpperCase()    
-            , 'correo': (correo ===  null ) ? "" : correo.toUpperCase()     
-            , 'IDStatus': localStorage.getItem("IDStatusActivo")
-            , 'IDCiudad': values.currency
-          }
 
-          limpiarCampos()
-          handleClose(datos, true)
- 
+
+    axios.get(API_GET_CLIENTE_CODIGO).then(resultado => {
+
+
+      const datos = {
+        'IDCliente': uuid()
+        , 'codigo': resultado.data[0].codigo
+        , 'cedula': cedula
+        , 'nombre1': (primerNombre !== null) ? primerNombre.toUpperCase() : ""   //primerNombre.toUpperCase()
+        , 'nombre2': (segundoNombre !== null) ? segundoNombre.toUpperCase() : ""  //   segundoNombre.toUpperCase()
+        , 'apellidoPaterno': (apellidoPaterno !== null) ? apellidoPaterno.toUpperCase() : "" //apellidoPaterno.toUpperCase()
+        , 'apellidoMaterno': (apellidoMaterno !== null) ? apellidoMaterno.toUpperCase() : "" //apellidoMaterno.toUpperCase()
+        , 'celular': telefonoCelular
+        , 'direccion': (direccion === null) ? "" : direccion.toUpperCase()
+        , 'correo': (correo === null) ? "" : correo.toUpperCase()
+        , 'IDStatus': localStorage.getItem("IDStatusActivo")
+        , 'IDCiudad': values.currency
+      }
+
+      limpiarCampos()
+      handleClose(datos, true)
+
     })
 
 
@@ -137,7 +181,7 @@ export default function TextFields({ handleClose, Ciudades }) {
   }
 
   return (
-    <form className={classes.container}   autoComplete="off"
+    <form className={classes.container} autoComplete="off"
       onSubmit={agregarProducto}
     >
       <TextField
@@ -206,29 +250,29 @@ export default function TextFields({ handleClose, Ciudades }) {
 
 
 
-{/* nuevi */}
-<TextField
-          id="standard-sdelect-currency"
-          select
-          label=""
-          className={classes.textField}
-          required
-          value={values.currency}
-          onChange={handleChange('currency')}
-          SelectProps={{
-            MenuProps: {
-              className: classes.menu,
-            },
-          }}
-          helperText="Por favor, seleccione una ciudad de residencia."
-          margin="normal"
-        >
-          {currencies.map(option => (
-            <MenuItem key={option.value} value={option.value}>
-              {`${option.label}`}
-            </MenuItem>
-          ))}
-        </TextField>
+      {/* nuevi */}
+      <TextField
+        id="standard-sdelect-currency"
+        select
+        label=""
+        className={classes.textField}
+        required
+        value={values.currency}
+        onChange={handleChange('currency')}
+        SelectProps={{
+          MenuProps: {
+            className: classes.menu,
+          },
+        }}
+        helperText="Por favor, seleccione una ciudad de residencia."
+        margin="normal"
+      >
+        {currencies.map(option => (
+          <MenuItem key={option.value} value={option.value}>
+            {`${option.label}`}
+          </MenuItem>
+        ))}
+      </TextField>
 
 
 
@@ -257,7 +301,7 @@ export default function TextFields({ handleClose, Ciudades }) {
       </TextField> */}
 
 
-  
+
 
       <TextField
         id="standard-full-width"
@@ -276,7 +320,7 @@ export default function TextFields({ handleClose, Ciudades }) {
 
 
 
-<TextField
+      <TextField
         id="standard-full-width"
         label="Correo Electronico"
         value={correo}
@@ -289,18 +333,93 @@ export default function TextFields({ handleClose, Ciudades }) {
         }}
         onChange={e => setCorreo(e.target.value)}
       />
- 
+
 
 
       <DialogActions className="pull-right">
-            <Button onClick={cancelar} color="primary">
-              Cancelar
+        <Button onClick={cancelar} color="primary">
+          Cancelar
               </Button>
-            <Button type="submit" color="primary">
-              Guardar
+        <Button type="submit" color="primary">
+          Guardar
             </Button>
       </DialogActions>
 
+
+
+      <div>
+        <Button onClick={handleClickOpenDistrito}>Open select dialog</Button>
+        <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
+          <DialogTitle>Seleccione el distrito y el colegio</DialogTitle>
+          <DialogContent>
+            <form className={classes.container}>
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="demo-dialog-native">Distrito</InputLabel>
+               
+                <TextField
+                  id="standard-sdelect-currency"
+                  select
+                  label=""
+                   
+                  className={classes.selectDistritoCiudad}
+                  required
+                  // value={values.currency}
+                  onChange={handleChange('currency')}
+                  SelectProps={{
+                    MenuProps: {
+                      className: classes.menu,
+                    },
+                  }}
+                  helperText="Por favor, seleccione un distrito"
+                  margin="normal"
+                >
+                  {currencies1.map(option => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {`${option.label}`}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <InputLabel id="demo-dialog-select-label">Colegio</InputLabel>
+                <br />
+                <TextField
+                  id="standard-sdelect-currency"
+                  select
+                  label=""
+                  className={classes.selectDistritoCiudad}
+                  required
+                  // value={values.currency}
+                  onChange={handleChange('currency')}
+                  SelectProps={{
+                    MenuProps: {
+                      className: classes.menu,
+                    },
+                  }}
+                  helperText="Por favor, seleccione un colegio"
+                  margin="normal"
+                >
+                  {currencies1.map(option => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {`${option.label}`}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </FormControl>
+            </form>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDistrito} color="primary">
+              Cancel
+          </Button>
+            <Button onClick={handleCloseDistrito} color="primary">
+              Ok
+          </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     </form>
   );
 }
