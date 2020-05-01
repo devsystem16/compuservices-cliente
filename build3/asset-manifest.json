@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/static/css/main.bc0fe56a.chunk.css",
+    "main.js": "/static/js/main.b5995b1d.chunk.js",
+    "main.js.map": "/static/js/main.b5995b1d.chunk.js.map",
+    "runtime~main.js": "/static/js/runtime~main.a8a9905a.js",
+    "runtime~main.js.map": "/static/js/runtime~main.a8a9905a.js.map",
+    "static/css/2.2b64612d.chunk.css": "/static/css/2.2b64612d.chunk.css",
+    "static/js/2.f7c26449.chunk.js": "/static/js/2.f7c26449.chunk.js",
+    "static/js/2.f7c26449.chunk.js.map": "/static/js/2.f7c26449.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.3e827f37b6dc33911b9077441f813b8b.js": "/precache-manifest.3e827f37b6dc33911b9077441f813b8b.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/2.2b64612d.chunk.css.map": "/static/css/2.2b64612d.chunk.css.map",
+    "static/css/main.bc0fe56a.chunk.css.map": "/static/css/main.bc0fe56a.chunk.css.map",
+    "static/media/logoCompuservices.PNG": "/static/media/logoCompuservices.9e6cd5bd.PNG"
+  }
+}

@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React   from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+
+import NuevoCliente from './Components/NuevoCliente'
+import EditarCliente from './Components/EditarCliente'
+import Login from './SignInSide'
+import Menu from './Components/Menu'
+import Index from './ui'
+
+ 
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Switch>
+      {/* <Route exact path ="/" component ={Index}></Route> */}
+      <Route exact path ="/" component ={Login}></Route>
+      <Route exact path ="/login" component ={Login}></Route>
+      <Route exact path ="/nuevo-cliente" component ={NuevoCliente}></Route>
+      <Route exact path ="/editar-cliente" component ={EditarCliente}></Route>
+      <Route exact path ="/login" component ={Login}></Route>
+      <Route exact path ="/Menu" component ={Menu}></Route>
+      <Route exact path ="/ordenes" component ={Menu}></Route>
+       <Route exact path ="/ordenesgarantia" component ={Menu}></Route>
+      
+      <Route exact path ="/clientes" component ={Menu}></Route>
+      <Route exact path ="/usuarios" component ={Menu}></Route>
+ 
+      <Route exact path ="/formularioNuevaOrden" component ={Menu}></Route>
+
+
+      </Switch>
+    </Router>
   );
 }
 
 export default App;
+ 
