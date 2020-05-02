@@ -3,8 +3,8 @@ import MUIDataTable from "mui-datatables";
 
 import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
-import Swal from "sweetalert2";  
-import axios  from 'axios'
+import Swal from "sweetalert2";
+import axios from 'axios'
 import { Link } from 'react-router-dom'
 import IconButton from "@material-ui/core/IconButton";
 import Edit from "@material-ui/icons/Edit";
@@ -12,7 +12,7 @@ import Delete from "@material-ui/icons/Delete";
 import PageviewIcon from '@material-ui/icons/Check';
 import ModalNuevoCliente from './NuevoCliente/index'
 import { withRouter } from 'react-router-dom'
-import  {API_CLIENTES,ROL_ADMINISTRADOR} from '../Constantes'
+import { API_CLIENTES, ROL_ADMINISTRADOR } from '../Constantes'
 
 class Clientes extends Component {
     constructor(props) {
@@ -25,12 +25,12 @@ class Clientes extends Component {
     }
 
 
-    fn_eliminarCliente = ()=>{
+    fn_eliminarCliente = () => {
         const cliente = {
-         IDStatus:localStorage.getItem('IDStatusInactivo')
+            IDStatus: localStorage.getItem('IDStatusInactivo')
         }
 
-        
+
 
 
 
@@ -42,23 +42,23 @@ class Clientes extends Component {
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Si, eliminar'
-          }).then((result) => {
+        }).then((result) => {
             if (result.value) {
 
 
-                axios.post(`${API_CLIENTES}/${localStorage.getItem('current_IDCLiente')}`  ,cliente ).then(res => {
+                axios.post(`${API_CLIENTES}/${localStorage.getItem('current_IDCLiente')}`, cliente).then(res => {
                     this.props.setRecargarClientes(true)
                     this.props.history.push('/clientes')
                 })
-              
- 
-              Swal.fire(
-                '¡Eliminado!',
-                'El cliente ha sido eliminado.',
-                'success'
-              )
+
+
+                Swal.fire(
+                    '¡Eliminado!',
+                    'El cliente ha sido eliminado.',
+                    'success'
+                )
             }
-          })
+        })
 
     }
     componentDidMount() {
@@ -82,10 +82,10 @@ class Clientes extends Component {
         })
     }
 
-     cerrar= () => {
-      
-         this.props.handleCloseModalCliente();
-     }
+    cerrar = () => {
+
+        this.props.handleCloseModalCliente();
+    }
 
     render() {
 
@@ -176,23 +176,23 @@ class Clientes extends Component {
                     sort: false,
                     empty: true,
                     customBodyRender: (value, tableMeta, updateValue) => {
- 
+
                         var currentIDCliente = localStorage.getItem('current_IDCLiente')
                         if (tableMeta.rowData !== undefined) {
 
                             localStorage.setItem('current_IDCLiente', tableMeta.rowData[0])
                             currentIDCliente = localStorage.getItem('current_IDCLiente')
-        
+
                         }
 
                         var btnEditarStyle = { display: '' }
                         var btnEliminarStyle = { display: '' }
                         var btnSeleccionarStyle = { display: '' }
- 
-                        
-                        btnEditarStyle =(JSON.parse(localStorage.getItem('usuario')).rol === ROL_ADMINISTRADOR) ? { display: '' } :  { display: 'none' }
-                        btnEliminarStyle =(JSON.parse(localStorage.getItem('usuario')).rol === ROL_ADMINISTRADOR) ? { display: '' } :  { display: 'none' }
- 
+
+
+                        btnEditarStyle = (JSON.parse(localStorage.getItem('usuario')).rol === ROL_ADMINISTRADOR) ? { display: '' } : { display: 'none' }
+                        btnEliminarStyle = (JSON.parse(localStorage.getItem('usuario')).rol === ROL_ADMINISTRADOR) ? { display: '' } : { display: 'none' }
+
 
                         if (!this.props.btnEditar) {
                             btnEditarStyle = { display: 'none' }
@@ -233,7 +233,7 @@ class Clientes extends Component {
                                 </IconButton>
 
                                 <IconButton
-                                onClick={this.cerrar}
+                                    onClick={this.cerrar}
                                     disabled={false}
                                     title=""
                                     style={btnSeleccionarStyle}
@@ -253,7 +253,7 @@ class Clientes extends Component {
 
 
         ];
- 
+
         const data = this.props.ReportClientes
 
         const options = {
@@ -265,7 +265,7 @@ class Clientes extends Component {
 
             onRowClick: (rowData, rowState) => {
                 localStorage.setItem("current_IDCLiente", rowData[0]);
- 
+
                 var currentCliente = {
                     IDCliente: rowData[0],
                     codigo: rowData[1],
@@ -273,12 +273,12 @@ class Clientes extends Component {
                     nombres: rowData[3],
                     celular: rowData[4]
                 }
-                localStorage.setItem("currentCliente" ,JSON.stringify(currentCliente) )
+                localStorage.setItem("currentCliente", JSON.stringify(currentCliente))
 
                 if (this.props.btnSeleccionar) {
                     this.cerrar()
                 }
-              
+
 
 
             },
@@ -305,7 +305,11 @@ class Clientes extends Component {
 
 
                 <ModalNuevoCliente
+                
+                    setRecargarColegios={this.props.setRecargarColegios}
+                    setCurrentDistrito={this.props.setCurrentDistrito}
                     Distritos={this.props.Distritos}
+                    Colegios={this.props.Colegios}
                     Ciudades={this.props.Ciudades}
                     setOpenProps={this.state.setOpenProps}
                     handleCloseModalCliente={this.handleCloseModalCliente}
@@ -318,4 +322,4 @@ class Clientes extends Component {
     }
 }
 
-export default  withRouter(Clientes );
+export default withRouter(Clientes);

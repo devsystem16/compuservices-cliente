@@ -44,7 +44,7 @@ import PeopleAlt from '@material-ui/icons/NaturePeopleOutlined';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 
 
-import {API_DISTRITO, ROL_HAITECH,API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
+import { API_COLEGIOS, API_DISTRITO, ROL_HAITECH, API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
 
 
 const drawerWidth = 240;
@@ -157,6 +157,7 @@ function Menu(props) {
     const [ReportClientesSinFiltro, setReportClientesSF] = useState([])
 
 
+    const [Colegios, setColegios] = useState([])
     const [Distritos, setDistritos] = useState([])
     const [Ciudades, setCiudades] = useState([])
     const [tiposEquipos, setTiposEquipos] = useState([])
@@ -177,13 +178,14 @@ function Menu(props) {
 
     const [estadosOrden, setEstadosOrden] = useState([])
     const [garantias, setGarantias] = useState([])
-    const [visualizaMenu, serVisualizaMenu] =useState( { display: '' })
-    const [usuarioHaitech, setUsuarioHaitech] =useState( { display: 'none' })
-
- 
+    const [visualizaMenu, serVisualizaMenu] = useState({ display: '' })
+    const [usuarioHaitech, setUsuarioHaitech] = useState({ display: 'none' })
 
 
+    const [recargarColegios, setRecargarColegios] = useState(false)
+    const [currentDistrito, setCurrentDistrito] = useState('')
 
+    
     function onLogout() {
         localStorage.removeItem('usuario')
         history.push('/login')
@@ -197,28 +199,28 @@ function Menu(props) {
 
 
     useEffect(() => {
- 
+
 
 
         try {
-            serVisualizaMenu ((JSON.parse(localStorage.getItem('usuario')).rol === ROL_ADMINISTRADOR) ? { display: '' } :  { display: 'none' } )
-        
-            setUsuarioHaitech ((JSON.parse(localStorage.getItem('usuario')).rol === ROL_HAITECH) ? { display: 'none' } :  { display: '' } )
-       
+            serVisualizaMenu((JSON.parse(localStorage.getItem('usuario')).rol === ROL_ADMINISTRADOR) ? { display: '' } : { display: 'none' })
+
+            setUsuarioHaitech((JSON.parse(localStorage.getItem('usuario')).rol === ROL_HAITECH) ? { display: 'none' } : { display: '' })
+
         } catch (error) {
-            
+
         }
-       
-       if (recargarComboUsuario){
- 
+
+        if (recargarComboUsuario) {
+
             const getTecnicosYAdministradores = async () => {
-            const resultado = await axios.get(API_GET_TECNICOS_ADMINISTRADORES)
-            setOperarios(resultado.data)
+                const resultado = await axios.get(API_GET_TECNICOS_ADMINISTRADORES)
+                setOperarios(resultado.data)
+            }
+
+            getTecnicosYAdministradores()
+            setrecargarComboUsuario(false)
         }
- 
-        getTecnicosYAdministradores()
-        setrecargarComboUsuario(false)
-       }
 
 
         if (recargarCombos) {
@@ -278,6 +280,18 @@ function Menu(props) {
         }
 
 
+        if (recargarColegios) {
+       
+            const GetColegios = async () => {
+                const resultado = await axios.get(`${API_COLEGIOS}/${currentDistrito}`)
+                console.log(resultado.data)
+                setColegios(resultado.data)
+
+            }
+            GetColegios()
+            setRecargarColegios(false)
+
+        }
 
 
         const GetStatus = async () => {
@@ -367,7 +381,7 @@ function Menu(props) {
 
 
 
-    }, [recargarProductos, recargarClientes, recargarUsuarios,recargarComboUsuario,recargarCombos])
+    }, [recargarProductos, recargarClientes, recargarUsuarios, recargarComboUsuario, recargarCombos, recargarColegios])
 
     if (JSON.parse(localStorage.getItem('usuario')) === null) {
 
@@ -426,7 +440,7 @@ function Menu(props) {
 
 
                             <div>
-                                <Link  style={usuarioHaitech} to="/ordenes" className={classes.linkPanel} >
+                                <Link style={usuarioHaitech} to="/ordenes" className={classes.linkPanel} >
                                     <ListItem button>
                                         <ListItemIcon>
                                             <ShoppingCartIcon />
@@ -449,7 +463,7 @@ function Menu(props) {
                                     </ListItem>
                                 </Link>
 
-                                <Link   style={visualizaMenu} to="/usuarios" className={classes.linkPanel}  >
+                                <Link style={visualizaMenu} to="/usuarios" className={classes.linkPanel}  >
                                     <ListItem button>
                                         <ListItemIcon>
                                             <PeopleAlt />
@@ -497,10 +511,10 @@ function Menu(props) {
                                 <Route exact path="/ordenes"
                                     render={() => (
                                         <Ordenes
-                                            setrecargarComboUsuario ={setrecargarComboUsuario}
+                                            setrecargarComboUsuario={setrecargarComboUsuario}
                                             Reporteordenes={Reporteordenes}
                                             guardarRecargarProductos={guardarRecargarProductos}
-                                         
+
                                         ></Ordenes>
                                     )}
                                 />
@@ -520,6 +534,9 @@ function Menu(props) {
                                             titulo="Clientes"
                                             ReportClientes={ReportClientes} Ciudades={Ciudades}
                                             Distritos={Distritos}
+                                            Colegios={Colegios}
+                                            setCurrentDistrito={setCurrentDistrito}
+                                            setRecargarColegios={setRecargarColegios}
                                             setRecargarClientes={setRecargarClientes}
                                             btnEditar={true}
                                             btnELiminar={true}
@@ -636,16 +653,16 @@ function Menu(props) {
 
                                         const idUsuario = props.match.params.id
                                         const usuario = usuarios.filter(unUsuario => unUsuario.IDUsuario === idUsuario)
-                          
-                                    
-                                        const currentRol = roles.filter (unRol =>unRol.IDRol ===  usuario[0].IDRol)   
-                                    
+
+
+                                        const currentRol = roles.filter(unRol => unRol.IDRol === usuario[0].IDRol)
+
                                         if (usuario.length > 0) {
                                             return (
                                                 <EditarUsuario
                                                     cliente={usuario}
                                                     roles={roles}
-                                                    currentRol = {currentRol}
+                                                    currentRol={currentRol}
                                                     setRecargarClientes={setRecargarUsuario}
                                                 />
                                             )

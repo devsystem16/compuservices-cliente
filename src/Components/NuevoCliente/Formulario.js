@@ -50,6 +50,16 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 500,
+  }, 
+  diseñoModalDistritos: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    height: 200,
+  },
+  diseñoModalDistritosCombos: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    height: 80,
   },
   textFieldCi: {
     marginLeft: theme.spacing(1),
@@ -78,11 +88,22 @@ const useStyles = makeStyles(theme => ({
 
 
 
-export default function TextFields({ handleClose, Ciudades, Distritos }) {
+export default function TextFields({   handleClose, Ciudades, Distritos, Colegios, setRecargarColegios, setCurrentDistrito }) {
+ 
+  const  [nombreDistritoSeleccionado, setNombreDistritoSeleccionado] = useState('--SELECCIONE DISTRITO--')
+  const  [idDistritoSeleccionado, setIdDistritoSeleccionado] = useState('')
+
+  const  [nombreColegioSeleccionado, setNombreColegioSeleccionado] = useState('--SELECCIONE COLEGIO--')
+  const  [idColegioSeleccionado, setIdColegioSeleccionado] = useState('')
+
+
+ 
+ 
+ 
 
 
   const [open, setOpenDistrito] = React.useState(false);
-  const [age, setAgeDistrito] = React.useState('');
+
   const handleClickOpenDistrito = () => {
     setOpenDistrito(true);
   };
@@ -90,6 +111,15 @@ export default function TextFields({ handleClose, Ciudades, Distritos }) {
   const handleCloseDistrito = () => {
     setOpenDistrito(false);
   };
+
+  const handleCancelarDistrito = () => {
+   setNombreColegioSeleccionado('--SELECCIONE COLEGIO--')
+   setNombreDistritoSeleccionado('--SELECCIONE DISTRITO--')
+   setIdColegioSeleccionado('')
+   setIdDistritoSeleccionado('')
+   setOpenDistrito(false);
+  };
+
 
 
 
@@ -111,19 +141,16 @@ export default function TextFields({ handleClose, Ciudades, Distritos }) {
   const [telefonoCelular, setTelefonoCelular] = useState('')
   const [direccion, setDireccion] = useState('')
   const [correo, setCorreo] = useState('')
-
-
+ 
 
   const currencies = Ciudades
-  const currencies1 = Distritos
+ 
 
   const cancelar = async e => {
     limpiarCampos()
     handleClose(null, false)
   }
-
-
-
+ 
   function limpiarCampos() {
     setCedula('')
     setPrimerNombre('')
@@ -133,7 +160,11 @@ export default function TextFields({ handleClose, Ciudades, Distritos }) {
     setTelefonoCelular('')
     setDireccion('')
     setCorreo('')
-
+    
+    setNombreColegioSeleccionado('--SELECCIONE COLEGIO--')
+    setNombreDistritoSeleccionado('--SELECCIONE DISTRITO--')
+    setIdColegioSeleccionado('')
+    setIdDistritoSeleccionado('')
   }
 
   const agregarProducto = async e => {
@@ -168,6 +199,8 @@ export default function TextFields({ handleClose, Ciudades, Distritos }) {
         , 'correo': (correo === null) ? "" : correo.toUpperCase()
         , 'IDStatus': localStorage.getItem("IDStatusActivo")
         , 'IDCiudad': values.currency
+        , 'IDDistrito': idDistritoSeleccionado
+        , 'IDInstitucionEducativa': idColegioSeleccionado
       }
 
       limpiarCampos()
@@ -178,6 +211,12 @@ export default function TextFields({ handleClose, Ciudades, Distritos }) {
 
 
 
+  }
+  const cargarColegioPorDistrito = async (idDistrito) => {
+
+
+    setCurrentDistrito(idDistrito);
+    setRecargarColegios(true)
   }
 
   return (
@@ -194,6 +233,9 @@ export default function TextFields({ handleClose, Ciudades, Distritos }) {
         margin="normal"
         onChange={e => setCedula(e.target.value)}
       />
+
+      <Button variant="outlined" color="primary" onClick={handleClickOpenDistrito}>Distrito  y Colegio</Button>
+
       <TextField
         id="standard-uncontrolled"
         required
@@ -277,28 +319,6 @@ export default function TextFields({ handleClose, Ciudades, Distritos }) {
 
 
 
-      {/* <TextField
-        id="standard-select-currency-native"
-        select
-        label=""
-        className={classes.textField}
-        value={values.currency}
-        onChange={handleChange('currency')}
-        SelectProps={{
-          native: true,
-          MenuProps: {
-            className: classes.menu,
-          },
-        }}
-        helperText="Por favor, seleccione una ciudad de residencia."
-        margin="normal"
-      >
-        {currencies.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </TextField> */}
 
 
 
@@ -348,74 +368,80 @@ export default function TextFields({ handleClose, Ciudades, Distritos }) {
 
 
       <div>
-        <Button onClick={handleClickOpenDistrito}>Open select dialog</Button>
-        <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
-          <DialogTitle>Seleccione el distrito y el colegio</DialogTitle>
-          <DialogContent>
-            <form className={classes.container}>
-              <FormControl className={classes.formControl}>
-                <InputLabel htmlFor="demo-dialog-native">Distrito</InputLabel>
-               
-                <TextField
-                  id="standard-sdelect-currency"
-                  select
-                  label=""
-                   
-                  className={classes.selectDistritoCiudad}
-                  required
-                  // value={values.currency}
-                  onChange={handleChange('currency')}
-                  SelectProps={{
-                    MenuProps: {
-                      className: classes.menu,
-                    },
-                  }}
-                  helperText="Por favor, seleccione un distrito"
-                  margin="normal"
-                >
-                  {currencies1.map(option => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {`${option.label}`}
-                    </MenuItem>
-                  ))}
-                </TextField>
 
+        <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleCloseDistrito}>
+          <DialogTitle>Seleccione el distrito y el colegio</DialogTitle>
+
+          <DialogContent className={classes.diseñoModalDistritos}>
+            <form className={classes.container}>
+              <FormControl className={classes.diseñoModalDistritosCombos} >
+
+                 <Autocomplete
+                  id="combo-box-demo"
+                  options={Distritos}
+                  getOptionLabel={(option) => option.label}
+                  style={{ width: 300 }}
+                  onChange={(event, value) => {
+                    if (value != null) {
+                      cargarColegioPorDistrito(value.value)
+
+                      setNombreDistritoSeleccionado(value.label)
+                      setIdDistritoSeleccionado(value.value)
+
+                    } 
+                  }} 
+                renderInput={(params) =>
+                  <TextField {...params}
+                    className={classes.selectDistritoCiudad}
+                    label= {nombreDistritoSeleccionado}
+                    variant="outlined"
+
+
+                  />
+                }
+                />
+ 
 
               </FormControl>
               <FormControl className={classes.formControl}>
-                <InputLabel id="demo-dialog-select-label">Colegio</InputLabel>
-                <br />
-                <TextField
-                  id="standard-sdelect-currency"
-                  select
-                  label=""
-                  className={classes.selectDistritoCiudad}
-                  required
-                  // value={values.currency}
-                  onChange={handleChange('currency')}
-                  SelectProps={{
-                    MenuProps: {
-                      className: classes.menu,
-                    },
+
+
+                <Autocomplete
+                  id="combo-box-demo"
+
+                  options={Colegios}
+                  getOptionLabel={(option) => option.label}
+                  style={{ width: 300 }}
+                  onChange={(event, value) => {
+                    if (value != null) {
+
+                      setNombreColegioSeleccionado(value.label)
+                      setIdColegioSeleccionado(value.value)
+
+
+                    } else {
+                      // cargarColegioPorDistrito('')
+                    }
                   }}
-                  helperText="Por favor, seleccione un colegio"
-                  margin="normal"
-                >
-                  {currencies1.map(option => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {`${option.label}`}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                  renderInput={(params) =>
+                    <TextField {...params}
+                      className={classes.selectDistritoCiudad}
+                      label= {nombreColegioSeleccionado}
+                      variant="outlined"
+
+                    />
+                  }
+                />
+
               </FormControl>
             </form>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDistrito} color="primary">
-              Cancel
+            <Button onClick={handleCancelarDistrito} color="primary">
+              Cancelar selección
           </Button>
             <Button onClick={handleCloseDistrito} color="primary">
-              Ok
+              Aceptar
           </Button>
           </DialogActions>
         </Dialog>

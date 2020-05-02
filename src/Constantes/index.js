@@ -90,3 +90,4 @@ export const ROL_HAITECH =  "Haitech"
 
 // Distritos
 export const API_DISTRITO = apiCompuServices + "distrito"
+export const API_COLEGIOS = apiCompuServices + "colegios"

@@ -21,7 +21,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 
-function ModalNuevoCliente({ setOpenProps, handleCloseModalCliente, Ciudades, setRecargarClientes, Distritos }) {
+function ModalNuevoCliente({distritoColegio, setOpenProps, handleCloseModalCliente, Ciudades, setRecargarClientes, Distritos,Colegios,setRecargarColegios ,setCurrentDistrito}) {
     // const [open, setOpen] = React.useState(setOpenProps);
 
 
@@ -75,7 +75,13 @@ function ModalNuevoCliente({ setOpenProps, handleCloseModalCliente, Ciudades, se
 
 
 
-                        <Formulario handleClose={handleClose} Ciudades={Ciudades} Distritos={Distritos} />
+                        <Formulario handleClose={handleClose} 
+                        Ciudades={Ciudades} 
+                        Distritos={Distritos} 
+                        Colegios={Colegios}
+                        setRecargarColegios={setRecargarColegios}
+                        setCurrentDistrito={setCurrentDistrito}
+                        />
 
                     </DialogContentText>
                 </DialogContent>
