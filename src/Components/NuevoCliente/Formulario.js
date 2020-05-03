@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 500,
-  }, 
+  },
   diseñoModalDistritos: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
@@ -88,18 +88,18 @@ const useStyles = makeStyles(theme => ({
 
 
 
-export default function TextFields({   handleClose, Ciudades, Distritos, Colegios, setRecargarColegios, setCurrentDistrito }) {
- 
-  const  [nombreDistritoSeleccionado, setNombreDistritoSeleccionado] = useState('--SELECCIONE DISTRITO--')
-  const  [idDistritoSeleccionado, setIdDistritoSeleccionado] = useState('')
+export default function TextFields({ handleClose, Ciudades, Distritos, Colegios, setRecargarColegios, setCurrentDistrito }) {
 
-  const  [nombreColegioSeleccionado, setNombreColegioSeleccionado] = useState('--SELECCIONE COLEGIO--')
-  const  [idColegioSeleccionado, setIdColegioSeleccionado] = useState('')
+  const [nombreDistritoSeleccionado, setNombreDistritoSeleccionado] = useState('--SELECCIONE DISTRITO--')
+  const [idDistritoSeleccionado, setIdDistritoSeleccionado] = useState('')
+
+  const [nombreColegioSeleccionado, setNombreColegioSeleccionado] = useState('--SELECCIONE COLEGIO--')
+  const [idColegioSeleccionado, setIdColegioSeleccionado] = useState('')
 
 
- 
- 
- 
+
+
+
 
 
   const [open, setOpenDistrito] = React.useState(false);
@@ -113,11 +113,11 @@ export default function TextFields({   handleClose, Ciudades, Distritos, Colegio
   };
 
   const handleCancelarDistrito = () => {
-   setNombreColegioSeleccionado('--SELECCIONE COLEGIO--')
-   setNombreDistritoSeleccionado('--SELECCIONE DISTRITO--')
-   setIdColegioSeleccionado('')
-   setIdDistritoSeleccionado('')
-   setOpenDistrito(false);
+    setNombreColegioSeleccionado('--SELECCIONE COLEGIO--')
+    setNombreDistritoSeleccionado('--SELECCIONE DISTRITO--')
+    setIdColegioSeleccionado('')
+    setIdDistritoSeleccionado('')
+    setOpenDistrito(false);
   };
 
 
@@ -141,16 +141,16 @@ export default function TextFields({   handleClose, Ciudades, Distritos, Colegio
   const [telefonoCelular, setTelefonoCelular] = useState('')
   const [direccion, setDireccion] = useState('')
   const [correo, setCorreo] = useState('')
- 
+
 
   const currencies = Ciudades
- 
+
 
   const cancelar = async e => {
     limpiarCampos()
     handleClose(null, false)
   }
- 
+
   function limpiarCampos() {
     setCedula('')
     setPrimerNombre('')
@@ -160,7 +160,7 @@ export default function TextFields({   handleClose, Ciudades, Distritos, Colegio
     setTelefonoCelular('')
     setDireccion('')
     setCorreo('')
-    
+
     setNombreColegioSeleccionado('--SELECCIONE COLEGIO--')
     setNombreDistritoSeleccionado('--SELECCIONE DISTRITO--')
     setIdColegioSeleccionado('')
@@ -376,7 +376,7 @@ export default function TextFields({   handleClose, Ciudades, Distritos, Colegio
             <form className={classes.container}>
               <FormControl className={classes.diseñoModalDistritosCombos} >
 
-                 <Autocomplete
+                <Autocomplete
                   id="combo-box-demo"
                   options={Distritos}
                   getOptionLabel={(option) => option.label}
@@ -388,19 +388,19 @@ export default function TextFields({   handleClose, Ciudades, Distritos, Colegio
                       setNombreDistritoSeleccionado(value.label)
                       setIdDistritoSeleccionado(value.value)
 
-                    } 
-                  }} 
-                renderInput={(params) =>
-                  <TextField {...params}
-                    className={classes.selectDistritoCiudad}
-                    label= {nombreDistritoSeleccionado}
-                    variant="outlined"
+                    }
+                  }}
+                  renderInput={(params) =>
+                    <TextField {...params}
+                      className={classes.selectDistritoCiudad}
+                      label={nombreDistritoSeleccionado}
+                      variant="outlined"
 
 
-                  />
-                }
+                    />
+                  }
                 />
- 
+
 
               </FormControl>
               <FormControl className={classes.formControl}>
@@ -426,7 +426,7 @@ export default function TextFields({   handleClose, Ciudades, Distritos, Colegio
                   renderInput={(params) =>
                     <TextField {...params}
                       className={classes.selectDistritoCiudad}
-                      label= {nombreColegioSeleccionado}
+                      label={nombreColegioSeleccionado}
                       variant="outlined"
 
                     />
@@ -437,11 +437,14 @@ export default function TextFields({   handleClose, Ciudades, Distritos, Colegio
             </form>
           </DialogContent>
           <DialogActions>
+            <Button onClick={handleCloseDistrito} color="primary">
+              Cerrar
+          </Button>
             <Button onClick={handleCancelarDistrito} color="primary">
-              Cancelar selección
+              Guardar sin datos
           </Button>
             <Button onClick={handleCloseDistrito} color="primary">
-              Aceptar
+              Guardar
           </Button>
           </DialogActions>
         </Dialog>

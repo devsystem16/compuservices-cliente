@@ -355,7 +355,6 @@ function Menu(props) {
 
                 setReportClientesSF(resultado.data)
 
-
                 var reporteClientes = []
                 resultado.data.filter(cliente => {
                     var unCliente = {
@@ -641,6 +640,14 @@ function Menu(props) {
                                                 Ciudades={Ciudades}
                                                 cliente={cliente}
                                                 setRecargarClientes={setRecargarClientes}
+
+                                                Distritos={Distritos}
+                                                Colegios={Colegios}
+                                                setCurrentDistrito={setCurrentDistrito}
+                                                setRecargarColegios={setRecargarColegios}
+                                                setRecargarClientes={setRecargarClientes}
+
+                                                
                                             />
                                         )
 
