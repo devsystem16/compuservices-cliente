@@ -1,4 +1,4 @@
-import React, { useState  } from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import { withRouter } from 'react-router-dom'
@@ -12,7 +12,7 @@ import axios from 'axios'
 import SaveIcon from '@material-ui/icons/Save';
 import Cancel from '@material-ui/icons/Cancel';
 import ModalOrden from './ModalOrden'
-
+import moment from 'moment';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
 import Divider from '@material-ui/core/Divider';
@@ -20,7 +20,29 @@ import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 
 import { getCurrentDate } from '../../utils'
-import {   API_POST_GUARDAR_ORDEN  } from "../../Constantes";
+import DateFnsUtils from '@date-io/date-fns';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogActions from '@material-ui/core/DialogActions';
+
+import Autocomplete from '../Autocomplete'
+
+import Grid from '@material-ui/core/Grid';
+import uuid from 'uuid/v4'
+
+
+import {
+  MuiPickersUtilsProvider,
+
+  KeyboardDatePicker,
+
+} from '@material-ui/pickers';
+
+import _ from 'lodash'
+
+import { API_POST_GUARDAR_ORDEN, API_CATALOGO_FALLAS } from "../../Constantes";
 
 const useStyles = makeStyles(theme => ({
 
@@ -50,6 +72,14 @@ const useStyles = makeStyles(theme => ({
     flexWrap: 'wrap',
     // width: '50%'
   },
+  textFieldFalla: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 250,
+  },
+
   textField: {
     marginLeft: theme.spacing(1),
 
@@ -93,13 +123,49 @@ const useStyles = makeStyles(theme => ({
 
 
 
-function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
+function EditarOrden({setRecargarCombos, catalogFallas, history, back, esTecnico, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
 
+
+  const [nuevasFallas, setNuevasFallas] = React.useState([])
+
+  const guardarCatalogoFallas = () => {
+
+  }
 
   var datos = ReportClientes;
 
   const classes = useStyles();
- 
+
+  const [mensajeEstadoOrden, setmensajeEstadoOrden] = useState("Por favor, seleccione un estado")
+
+
+
+  const [modalReporteGarantia, setmodalReporteGarantia] = useState(false);
+  const [fechaReparacion, setfechaReparacion] = useState(moment(new Date(getCurrentDate('-'))).format("YYYY-MM-DD"))
+
+
+
+
+
+  const cerrarModalReporteGarantia = () => {
+    setmodalReporteGarantia(false)
+  }
+  const AceptarFechaReporteGarantia = () => {
+    setmodalReporteGarantia(false)
+    setmensajeEstadoOrden("Reparada el: " + moment(fechaReparacion).format("YYYY-MM-DD"))
+  }
+
+  const abrirModalReporteGarantia = () => {
+    setmodalReporteGarantia(true)
+  }
+  const handleDateChange = (date) => {
+
+    setfechaReparacion(moment(date).format("YYYY-MM-DD"))
+
+    setmensajeEstadoOrden("Reparada el: " + fechaReparacion)
+
+  }
+
   const [values, setValues] = React.useState({
     currency: orden.IDTipoEquipo,
   });
@@ -132,6 +198,12 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
   };
 
   const cambioEstadosOrden = name => event => {
+
+    if (event.nativeEvent.explicitOriginalTarget.textContent === "LISTO") {
+      setmodalReporteGarantia(true)
+    } else {
+      setmensajeEstadoOrden("Por favor, seleccione un estado")
+    }
     setEstadosOrden({ ...values, [name]: event.target.value });
   };
 
@@ -212,17 +284,70 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
   }
 
   const guardarOrden = () => {
+
+    const fallasSeleccionEnter = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === undefined })
+    const fallasSeleccionadasDelListado = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value !== "INSERTAR_FALLA" && fallas.value !== undefined })
+    const fallasNuevasInsertadas = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === "INSERTAR_FALLA" })
+    const fallasNuevasConID = []
+    const dataInsert = []
+
+    _.forEach(fallasSeleccionEnter, function (value, key) {
+      var id = uuid();
+
+      var unaFalla = {
+        value: id,
+        label: value
+      }
+      fallasNuevasConID.push(unaFalla)
+
+      unaFalla = {
+        IDCatalogoFallas: id,
+        descripcion: value,
+        IDStatus: localStorage.getItem("IDStatusActivo")
+      }
+      dataInsert.push(unaFalla)
+
+
+    });
+
+    _.forEach(fallasNuevasInsertadas, function (value, key) {
+
+      var id = uuid();
+
+      var unaFalla = {
+        value: id,
+        label: value.nombreFalla
+
+      }
+      fallasNuevasConID.push(unaFalla)
+
+      unaFalla = {
+        IDCatalogoFallas: id,
+        descripcion: value.nombreFalla,
+        IDStatus: localStorage.getItem("IDStatusActivo")
+      }
+      dataInsert.push(unaFalla)
+    });
+
+    var fallasListadoyNuevas = _.concat(fallasSeleccionadasDelListado, fallasNuevasConID);
+
+
+    axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
+      console.log("estado insercion fallas", rest.data)
+    })
+
+
     const { modelo, serie, accesorios, fallas, total, abono, saldo, informe } = valores
- 
+
     const orden = {
 
       modelo: modelo.toUpperCase()
       , serie: serie.toUpperCase()
-      , accesorios:  (accesorios ===  null ) ? "" : accesorios.toUpperCase()  
-      , falla:  (fallas ===  null ) ? "" : fallas.toUpperCase()   
+      , accesorios: (accesorios === null) ? "" : accesorios.toUpperCase()
+      , falla: JSON.stringify(fallasListadoyNuevas)  // (fallas === null) ? "" : fallas.toUpperCase()
       // , fecha: getCurrentDate('-')
       , total: total
-      , informeTecnico: (informe ===  null ) ? "" : informe.toUpperCase()
+      , informeTecnico: (informe === null) ? "" : informe.toUpperCase()
       , IDTipoEquipo: values.currency
       , IDMarca: objMarcas.marcas
       // , IDCliente: JSON.parse(localStorage.getItem('currentCliente')).IDCliente
@@ -231,13 +356,15 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
       , IDUsuario: objOperarios.operarios
       , IDEstadoOrden: objEstadosOrden.estadosOrden
       , orden_entero1: abono
+      , orden_varchar1: fechaReparacion
     }
 
 
     axios.post(`${API_POST_GUARDAR_ORDEN}/${localStorage.getItem('current_IDOrden')}`, orden).then(responseA => {
 
-      console.log(responseA)
+      
       guardarRecargarProductos(true)
+      setRecargarCombos(true)
       history.push(back)
       Swal.fire({
         title: 'Un momento',
@@ -282,7 +409,7 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
       <Paper className={classes.root}>
 
         <InputBase
-             disabled={esTecnico}
+          disabled={esTecnico}
           className={classes.input}
           defaultValue={orden.cliente}
           placeholder="Código del cliente"
@@ -292,7 +419,7 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
         />
 
         <Divider className={classes.divider} />
-        <IconButton     disabled={esTecnico} color="primary" className={classes.iconButton} aria-label="directions" onClick={SetStatusModalClose} >
+        <IconButton disabled={esTecnico} color="primary" className={classes.iconButton} aria-label="directions" onClick={SetStatusModalClose} >
           <SearchIcon />
         </IconButton>
       </Paper>
@@ -385,7 +512,8 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
           name="accesorios"
           onChange={fn_onChange}
         />
-        <TextField
+        {
+          /* <TextField
           id="standard-password-inputa"
           label="Falla/as"
           name="fallas"
@@ -398,8 +526,15 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
           margin="normal"
 
           onChange={fn_onChange}
-        />
+        /> */
+        }
 
+        <Autocomplete
+          className={classes.textField}
+          catalogFallas={catalogFallas}
+          fallasDefault={JSON.parse(orden.falla.toLowerCase())}
+          setNuevasFallas={setNuevasFallas}
+        />
 
 
         <TextField
@@ -407,7 +542,8 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
           select
           disabled={true}
           label="Recibido por"
-          className={classes.textField}
+          // className={classes.textField}
+          // style={{ display: "none" }}
           value={objOperarios.operarios}
           onChange={cambioOperarios('operarios')}
           SelectProps={{
@@ -424,6 +560,12 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
             </MenuItem>
           ))}
         </TextField>
+
+
+
+
+
+
 
 
 
@@ -462,7 +604,7 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
           id="standard-dense"
           label="Abono  $"
           name="abono"
-          
+
           disabled={esTecnico}
           value={valores.abono}
           //   defaultValue={orden.abonos}
@@ -498,15 +640,18 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
               className: classes.menu,
             },
           }}
-          helperText="Por favor, seleccione una marca"
+          helperText={mensajeEstadoOrden}
           margin="normal"
         >
           {ordenesStatus.map(option => (
-            <MenuItem key={option.IDEstadoOrden} value={option.IDEstadoOrden}>
+            <MenuItem key={option.IDEstadoOrden} value={option.IDEstadoOrden} name={option.descripcion}>
               {option.descripcion}
             </MenuItem>
           ))}
         </TextField>
+
+
+
         <TextField
           id="standard-select-currenscy-native"
           select
@@ -557,6 +702,67 @@ function EditarOrden({ history,back, esTecnico,guardarRecargarProductos, tiposEq
       ) : (
           <div></div>
         )}
+
+
+
+
+
+
+
+
+
+      <Dialog
+        open={modalReporteGarantia}
+        // TransitionComponent={Transition}
+        keepMounted
+        onClose={cerrarModalReporteGarantia}
+        aria-labelledby="alert-dialog-slide-title"
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle id="alert-dialog-slide-title">{"Especifique la fecha de reparación"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+
+
+
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <Grid container justify="space-around">
+
+                <KeyboardDatePicker
+                  margin="normal"
+                  todayLabel="asdadasd"
+                  cancelLabel="Cancelar"
+
+                  minDateMessage="La fecha desde no puede ser mayor a la fecha hasta"
+                  id="date-picker-dialog"
+                  label="Fecha de reparación"
+                  format="yyyy-MM-dd"
+                  value={fechaReparacion}
+                  onChange={handleDateChange}
+                  KeyboardButtonProps={{
+                    'aria-label': 'change date',
+                  }}
+                />
+
+
+
+              </Grid>
+            </MuiPickersUtilsProvider>
+
+
+
+
+
+          </DialogContentText>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={cerrarModalReporteGarantia} color="primary"> Cancelar </Button>
+          <Button onClick={AceptarFechaReporteGarantia} color="primary">  Guardar </Button>
+        </DialogActions>
+
+      </Dialog>
+
 
     </div>
   );

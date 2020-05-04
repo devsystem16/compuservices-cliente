@@ -29,7 +29,7 @@ import EditarOrden from './NuevaOrden/FormularioEditar'
 import EditarCliente from './EditarCliente/EditarCliente'
 
 import axios from 'axios';
-
+import _ from 'lodash'
 
 import EditarUsuario from './usuarios/EditarUsuario'
 
@@ -44,7 +44,7 @@ import PeopleAlt from '@material-ui/icons/NaturePeopleOutlined';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 
 
-import { API_COLEGIOS, API_DISTRITO, ROL_HAITECH, API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
+import { API_CATALOGO_FALLAS, API_COLEGIOS, API_DISTRITO, ROL_HAITECH, API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
 
 
 const drawerWidth = 240;
@@ -151,7 +151,7 @@ function Menu(props) {
     };
     // const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
-
+    const [ReporteOrdenesProesada, setReporteOrdenesProesada] = useState([])
     const [Reporteordenes, setReporteOrdenes] = useState([])
     const [ReportClientes, setReportClientes] = useState([])
     const [ReportClientesSinFiltro, setReportClientesSF] = useState([])
@@ -185,7 +185,8 @@ function Menu(props) {
     const [recargarColegios, setRecargarColegios] = useState(false)
     const [currentDistrito, setCurrentDistrito] = useState('')
 
-    
+    const [catalogFallas, setCatalogFallas] = useState([])
+
     function onLogout() {
         localStorage.removeItem('usuario')
         history.push('/login')
@@ -276,15 +277,23 @@ function Menu(props) {
             GetDistritos()
 
 
+            const getCatalogoFallas = async () => {
+                const resultado = await axios.get(API_CATALOGO_FALLAS)
+                setCatalogFallas(resultado.data)
+
+            }
+            getCatalogoFallas()
+
+
+
             setRecargarCombos(false)
         }
 
 
         if (recargarColegios) {
-       
+
             const GetColegios = async () => {
                 const resultado = await axios.get(`${API_COLEGIOS}/${currentDistrito}`)
-                console.log(resultado.data)
                 setColegios(resultado.data)
 
             }
@@ -335,10 +344,33 @@ function Menu(props) {
             }
 
             const consultarApi = async () => {
-                console.log(API_REPORTE_ORDENES)
+              
                 const resultado = await axios.get(API_REPORTE_ORDENES)
-                // console.log("datos del reporte" , resultado.data)
+                // const resultado2 =await axios.get(API_REPORTE_ORDENES)
                 setReporteOrdenes(resultado.data)
+               
+
+                const dataArreglada=[]
+
+                const dataCAdena = JSON.stringify(resultado.data)  
+ 
+
+
+                const dataBruta =  JSON.parse(dataCAdena)
+                _.forEach(dataBruta, function (value, key) {
+                    // value.falla = "Soy hermoso" + key ;
+                    var jsonFallas = JSON.parse(value.falla ) 
+                    var cadenaFallas ="";
+                    _.forEach(jsonFallas, function (value, key) {
+                        cadenaFallas +=   value.LABEL + ", "
+                    })
+                    value.falla = cadenaFallas.slice(3,-2);
+                    dataArreglada.push(value)
+                })
+                  setReporteOrdenesProesada(dataArreglada)
+
+
+                
             }
             consultarApi()
             guardarRecargarProductos(false)
@@ -511,7 +543,7 @@ function Menu(props) {
                                     render={() => (
                                         <Ordenes
                                             setrecargarComboUsuario={setrecargarComboUsuario}
-                                            Reporteordenes={Reporteordenes}
+                                            Reporteordenes={ReporteOrdenesProesada}
                                             guardarRecargarProductos={guardarRecargarProductos}
 
                                         ></Ordenes>
@@ -564,6 +596,8 @@ function Menu(props) {
 
                                         return (
                                             <EditarOrden ReportClientes={ReportClientes}
+                                                setRecargarCombos={setRecargarCombos}
+                                                catalogFallas={catalogFallas}
                                                 back="/ordenes"
                                                 marcas={marcas}
                                                 orden={orden[0]}
@@ -621,6 +655,8 @@ function Menu(props) {
                                             garantias={garantias}
                                             guardarRecargarProductos={guardarRecargarProductos}
                                             setRecargarCombos={setRecargarCombos}
+                                            catalogFallas={catalogFallas}
+                                            setRecargarCombos={setRecargarCombos}
                                         ></FRM>
                                     )}
                                 />
@@ -647,7 +683,7 @@ function Menu(props) {
                                                 setRecargarColegios={setRecargarColegios}
                                                 setRecargarClientes={setRecargarClientes}
 
-                                                
+
                                             />
                                         )
 

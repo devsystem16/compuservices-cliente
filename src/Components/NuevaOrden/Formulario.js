@@ -19,14 +19,16 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import uuid from 'uuid/v4'
-
+import _ from 'lodash'
 import { getCurrentDate } from '../../utils'
-import {  API_GET_ORDEN_CODIGO, API_POST_GUARDAR_ORDEN,   API_MARCA,API_TIPO_EQUIPO} from "../../Constantes";
+import {API_CATALOGO_FALLAS, API_GET_ORDEN_CODIGO, API_POST_GUARDAR_ORDEN,   API_MARCA,API_TIPO_EQUIPO} from "../../Constantes";
 
 import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
 
-
+import Autocomplete from '../Autocomplete'
+ 
+ 
 
 const useStyles = makeStyles(theme => ({
 
@@ -113,7 +115,12 @@ const useStyles = makeStyles(theme => ({
 
 
 
-function TextFields({ setRecargarCombos , history, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
+function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
+
+
+
+  const [nuevasFallas, setNuevasFallas] = React.useState([])
+
 
 
   var datos = ReportClientes;
@@ -309,6 +316,60 @@ function TextFields({ setRecargarCombos , history, guardarRecargarProductos, tip
 
   const guardarOrden = (e) => {
 
+    const fallasSeleccionEnter = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === undefined })
+    const fallasSeleccionadasDelListado = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value !== "INSERTAR_FALLA" && fallas.value !== undefined })
+    const fallasNuevasInsertadas = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === "INSERTAR_FALLA" })
+    const fallasNuevasConID = []
+    const dataInsert = []
+
+    _.forEach(fallasSeleccionEnter, function (value, key) {
+      var id = uuid();
+
+      var unaFalla = {
+        value: id,
+        label: value
+      }
+      fallasNuevasConID.push(unaFalla)
+
+      unaFalla = {
+        IDCatalogoFallas: id,
+        descripcion: value,
+        IDStatus: localStorage.getItem("IDStatusActivo")
+      }
+      dataInsert.push(unaFalla)
+
+
+    });
+
+    _.forEach(fallasNuevasInsertadas, function (value, key) {
+
+      var id = uuid();
+
+      var unaFalla = {
+        value: id,
+        label: value.nombreFalla
+
+      }
+      fallasNuevasConID.push(unaFalla)
+
+      unaFalla = {
+        IDCatalogoFallas: id,
+        descripcion: value.nombreFalla,
+        IDStatus: localStorage.getItem("IDStatusActivo")
+      }
+      dataInsert.push(unaFalla)
+    });
+
+    var fallasListadoyNuevas = _.concat(fallasSeleccionadasDelListado, fallasNuevasConID);
+
+ 
+
+    axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
+      console.log("estado insercion fallas", rest.data)
+    })
+
+ 
+
     e.preventDefault();
     const { modelo, serie, accesorios, fallas, total, abono, saldo, informe } = valores
 
@@ -392,7 +453,7 @@ function TextFields({ setRecargarCombos , history, guardarRecargarProductos, tip
           , modelo: modelo.toUpperCase()
           , serie: serie.toUpperCase()
           , accesorios: accesorios.toUpperCase()
-          , falla: fallas.toUpperCase()
+          , falla: JSON.stringify(fallasListadoyNuevas)// fallas.toUpperCase()
           , fecha: getCurrentDate('-')
           , total: valorTotal
           , informeTecnico: informe.toUpperCase()
@@ -412,6 +473,7 @@ function TextFields({ setRecargarCombos , history, guardarRecargarProductos, tip
         axios.post(API_POST_GUARDAR_ORDEN, orden).then(resp => {
 
           guardarRecargarProductos(true)
+          setRecargarCombos(true)
           history.push('/ordenes')
           Swal.fire({
             title: 'Un momento',
@@ -570,7 +632,7 @@ function TextFields({ setRecargarCombos , history, guardarRecargarProductos, tip
           name="accesorios"
           onChange={fn_onChange}
         />
-        <TextField
+        {/* <TextField
           id="standard-password-inputa"
           label="Falla/as"
           name="fallas"
@@ -582,10 +644,17 @@ function TextFields({ setRecargarCombos , history, guardarRecargarProductos, tip
           margin="normal"
 
           onChange={fn_onChange}
-        />
+        /> */}
         
 
-        
+        <Autocomplete
+          className={classes.textField}
+          classe={classes.textFieldInforme}
+          catalogFallas={catalogFallas}
+          fallasDefault=  {null}
+          setNuevasFallas={setNuevasFallas}
+        />
+
         <TextField
           id="standard-dense"
           label="Recibido por"

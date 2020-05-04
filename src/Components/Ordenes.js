@@ -18,7 +18,7 @@ import PlayForWork from '@material-ui/icons/PlayForWork';
 
 import Fab from '@material-ui/core/Fab';
 
-
+import _ from 'lodash'
 import { getCurrentDate } from '../utils'
 
 import Button from '@material-ui/core/Button';
@@ -28,7 +28,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withRouter } from 'react-router-dom'
-
+ 
 
 import OrdenDiseño from './ImprimirOrden/OrdenDiseño'
 
@@ -429,7 +429,10 @@ class Ordenes extends Component {
 
         ];
 
+
         var data = this.props.Reporteordenes
+ 
+       
 
         const options = {
             download: false,
