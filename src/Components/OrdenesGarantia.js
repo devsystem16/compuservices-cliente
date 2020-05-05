@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 import IconButton from "@material-ui/core/IconButton";
 import Edit from "@material-ui/icons/Visibility";
 import Editar from "@material-ui/icons/Edit";
- 
+
 import MUIDataTable from "mui-datatables";
 import axios from 'axios';
 import Delete from "@material-ui/icons/Delete";
@@ -18,7 +18,7 @@ import PlayForWork from '@material-ui/icons/PlayForWork';
 
 import Fab from '@material-ui/core/Fab';
 
- 
+
 import { getCurrentDate } from '../utils'
 
 import Button from '@material-ui/core/Button';
@@ -28,15 +28,15 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withRouter } from 'react-router-dom'
- 
+
 
 import OrdenDiseño from './ImprimirOrden/OrdenDiseño'
 
+import _ from 'lodash'
 
 
 
-
-import { API_GET_REPORTE_ORDEN_GARANTIA_HAITECH,  ROL_HAITECH, API_GET_REPORTE_ORDEN_GARANTIA, API_GET_UNA_ORDEN, API_POST_GUARDAR_ORDEN, ROL_ADMINISTRADOR } from '../Constantes'
+import { API_GET_REPORTE_ORDEN_GARANTIA_HAITECH, ROL_HAITECH, API_GET_REPORTE_ORDEN_GARANTIA, API_GET_UNA_ORDEN, API_POST_GUARDAR_ORDEN, ROL_ADMINISTRADOR } from '../Constantes'
 
 
 
@@ -111,9 +111,46 @@ class OrdenesGarantia extends Component {
             setOpenProps: true
         })
     }
+    procesardata = (resultado) => {
 
+        const dataArreglada = []
+        const dataBruta = resultado.data
+        _.forEach(dataBruta, function (value, key) {
+            if (value.FALLA !== undefined) {
+                if (value.FALLA !== "" && value.FALLA !== null) {
+                    var jsonFallas = JSON.parse(value.FALLA)
+                    var cadenaFallas = "";
+                    _.forEach(jsonFallas, function (value, key) {
+                        cadenaFallas += value.label + ", "
+                    })
+                    value.FALLA = cadenaFallas.slice(3, -2).toUpperCase();
+                }
+            }
+            dataArreglada.push(value)
+        })
+        return dataArreglada;
+    }
+    procesardataHaitech = (resultado) => {
+
+        const dataArreglada = []
+        const dataBruta = resultado.data
+        _.forEach(dataBruta, function (value, key) {
+          
+                if (value.INCIDENTE !== "" && value.INCIDENTE !== null) {
+                    var jsonFallas = JSON.parse(value.INCIDENTE)
+                    var cadenaFallas = "";
+                    _.forEach(jsonFallas, function (value, key) {
+                        cadenaFallas += value.label + ", "
+                    })
+                    value.INCIDENTE = cadenaFallas.slice(3, -2).toUpperCase();
+                }
+           
+            dataArreglada.push(value)
+        })
+        return dataArreglada;
+    }
     descargarExcel(csvData, fileName) {
- 
+
         var options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         var inicio = moment(this.state.fechaInicio).format("YYYY-MM-DD") //   moment(new Date(this.state.fechaInicio).toLocaleDateString([], options)).format("YYYY-MM-DD")
         var fin = moment(this.state.fechaFin).format("YYYY-MM-DD")//    moment(new Date(this.state.fechaFin).toLocaleDateString([], options)).format("YYYY-MM-DD")
@@ -123,17 +160,27 @@ class OrdenesGarantia extends Component {
         var API = API_GET_REPORTE_ORDEN_GARANTIA
 
         if (JSON.parse(localStorage.getItem('usuario')).rol === ROL_HAITECH) {
-            API  = API_GET_REPORTE_ORDEN_GARANTIA_HAITECH
-
+            API = API_GET_REPORTE_ORDEN_GARANTIA_HAITECH
         }
 
 
-        axios.get(`${API}/${inicio}/${fin}`).then(response => {
+        axios.get(`${API}/${inicio}/${fin}`).then(resultado => {
 
-            const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-            const fileExtension = '.xlsx';
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const fileExtension = '.xlsx';
 
-            const ws = XLSX.utils.json_to_sheet(response.data);
+            let dataArreglada = []
+          
+            if (JSON.parse(localStorage.getItem('usuario')).rol === ROL_HAITECH) {
+                dataArreglada = this.procesardataHaitech(resultado)  
+            }else  {
+                dataArreglada = this.procesardata(resultado)
+            }
+
+            alert(JSON.stringify(dataArreglada));
+
+
+            const ws = XLSX.utils.json_to_sheet(dataArreglada);
             const wb = { Sheets: { 'Reporte uso de garantia': ws }, SheetNames: ['Reporte uso de garantia'] };
 
             // ws['!protect'] = {
@@ -227,18 +274,18 @@ class OrdenesGarantia extends Component {
 
     render() {
         try {
-             
+
             var permisoEstil1 = (JSON.parse(localStorage.getItem('usuario')).rol === ROL_ADMINISTRADOR) ? { display: '' } : { display: 'none' }
 
             if (JSON.parse(localStorage.getItem('usuario')).rol === ROL_HAITECH) {
-                permisoEstil1 =  { display: '' };
+                permisoEstil1 = { display: '' };
 
             }
 
             // var DescargarExcel = (JSON.parse(localStorage.getItem('usuario')).rol === ROL_HAITECH) ? { display: '' } : { display: 'none' }
             // var EditarHaitech = (JSON.parse(localStorage.getItem('usuario')).rol === ROL_HAITECH) ? { display: 'none' } : { display: '' }
         } catch (error) {
-            
+
         }
 
         const columns = [
@@ -308,8 +355,8 @@ class OrdenesGarantia extends Component {
                     sort: false,
                     empty: true,
 
-                    
-                   
+
+
                     customBodyRender: (value, tableMeta, updateValue) => {
 
                         var currentIDOrden = localStorage.getItem('current_IDOrden')
@@ -328,11 +375,11 @@ class OrdenesGarantia extends Component {
 
                         try {
                             var permisoEstilo = (JSON.parse(localStorage.getItem('usuario')).rol === ROL_ADMINISTRADOR) ? { display: '' } : { display: 'none' }
-                            var editarOrdenHaitech  = (JSON.parse(localStorage.getItem('usuario')).rol === ROL_HAITECH) ? { display: 'none' } : { display: '' }
+                            var editarOrdenHaitech = (JSON.parse(localStorage.getItem('usuario')).rol === ROL_HAITECH) ? { display: 'none' } : { display: '' }
                         } catch (error) {
-                            
+
                         }
-                      
+
 
                         return (
                             <div>
@@ -348,7 +395,7 @@ class OrdenesGarantia extends Component {
 
                                 <Link to={`/ordengarantia/editar/${currentIDOrden}`}    >
                                     <IconButton
-                                         style={editarOrdenHaitech}
+                                        style={editarOrdenHaitech}
                                         title="¿Editar Orden?"
                                         // onClick={this.fn_eliminarCliente}
                                         // style={btnEliminarStyle}
@@ -375,7 +422,7 @@ class OrdenesGarantia extends Component {
                         )
                     }
                     , onRowClick: (rowData, rowState) => {
-                  
+
                         if (rowData.rowData !== undefined) {
                             localStorage.setItem('current_IDOrden', rowData.rowData[0])
                         }
@@ -386,7 +433,7 @@ class OrdenesGarantia extends Component {
 
         ];
 
- 
+
 
 
 
@@ -407,7 +454,21 @@ class OrdenesGarantia extends Component {
             onRowClick: (rowData, rowState) => {
                 localStorage.setItem("current_IDOrden", rowData[0]);
 
+
                 axios.get(`${API_GET_UNA_ORDEN}/${rowData[0]}`).then(response => {
+
+                    const dataBruta = response.data[0]
+
+                    if (dataBruta.falla !== null && dataBruta.falla !== "") {
+                        var jsonFallas = JSON.parse(dataBruta.falla)
+                        var cadenaFallas = "";
+                        _.forEach(jsonFallas, function (value, key) {
+                            cadenaFallas += value.LABEL + ", "
+                        })
+                        cadenaFallas = cadenaFallas.slice(3, -2);
+                        dataBruta.falla = cadenaFallas;
+                    }
+
 
                     this.setState({
                         unaOrden: response.data[0]
@@ -418,7 +479,7 @@ class OrdenesGarantia extends Component {
             }
 
 
- 
+
         };
 
 
@@ -429,7 +490,7 @@ class OrdenesGarantia extends Component {
 
 
                 <div id="garantia">
-                    <Fab className="flotante" style={permisoEstil1 } size="small" color="secondary" aria-label="Add"
+                    <Fab className="flotante" style={permisoEstil1} size="small" color="secondary" aria-label="Add"
                         onClick={this.abrirModalReporteGarantia}  >
                         <PlayForWork />
                     </Fab>
@@ -487,38 +548,38 @@ class OrdenesGarantia extends Component {
 
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <Grid container justify="space-around">
-                                <KeyboardDatePicker
-                                    margin="normal"
-                                    todayLabel="asdadasd"
-                                     cancelLabel="Cancelar"
-                                   
-                                    minDateMessage="La fecha desde no puede ser mayor a la fecha hasta"
-                                    id="date-picker-dialog"
-                                    label="Date picker dialog"
-                                    format="yyyy-MM-dd"
-                                    value={this.state.fechaInicio}
-                                    onChange={this.handleDateChange}
-                                    KeyboardButtonProps={{
-                                        'aria-label': 'change date',
-                                    }}
-                                    />  
-                                        
                                     <KeyboardDatePicker
-                                    margin="normal"
-                                   
-                                    cancelLabel="Cancelar"
-                                  
-                                    minDateMessage="La fecha hasta no puede ser menor a la fecha desde"
-                                    id="date-picker-dialog"
-                                    label="Date picker dialog"
-                                    minDate={this.state.fechaInicio}
-                                    format="yyyy-MM-dd"
-                                    value={this.state.fechaFin}
-                                    onChange={this.handleDateChangeFechaFin}
-                                    KeyboardButtonProps={{
-                                        'aria-label': 'change date',
-                                    }}
-                                    />  
+                                        margin="normal"
+                                        todayLabel="asdadasd"
+                                        cancelLabel="Cancelar"
+
+                                        minDateMessage="La fecha desde no puede ser mayor a la fecha hasta"
+                                        id="date-picker-dialog"
+                                        label="Date picker dialog"
+                                        format="yyyy-MM-dd"
+                                        value={this.state.fechaInicio}
+                                        onChange={this.handleDateChange}
+                                        KeyboardButtonProps={{
+                                            'aria-label': 'change date',
+                                        }}
+                                    />
+
+                                    <KeyboardDatePicker
+                                        margin="normal"
+
+                                        cancelLabel="Cancelar"
+
+                                        minDateMessage="La fecha hasta no puede ser menor a la fecha desde"
+                                        id="date-picker-dialog"
+                                        label="Date picker dialog"
+                                        minDate={this.state.fechaInicio}
+                                        format="yyyy-MM-dd"
+                                        value={this.state.fechaFin}
+                                        onChange={this.handleDateChangeFechaFin}
+                                        KeyboardButtonProps={{
+                                            'aria-label': 'change date',
+                                        }}
+                                    />
 
                                 </Grid>
                             </MuiPickersUtilsProvider>

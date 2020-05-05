@@ -197,6 +197,24 @@ function Menu(props) {
         history.push('/login')
     }
 
+    function verificarSessionInactiva (){
+        
+        var interval = 1000;
+        var IDLE_TIMEOUT = 10;
+        var idleCounter = 0;
+        document.onmousemove = document.onkeypress = function () {
+            idleCounter = 0;
+        }
+        const tiempo=   window.setInterval(function () {
+            console.log(idleCounter)
+            if (++idleCounter >= IDLE_TIMEOUT) {
+                console.log('Login  Again')
+                idleCounter = 0;
+                onLogout();
+            }
+        }, interval);
+        return tiempo
+    }
 
 
     useEffect(() => {
@@ -344,39 +362,39 @@ function Menu(props) {
             }
 
             const consultarApi = async () => {
-              
+
                 const resultado = await axios.get(API_REPORTE_ORDENES)
                 // const resultado2 =await axios.get(API_REPORTE_ORDENES)
                 setReporteOrdenes(resultado.data)
-               
-
-                const dataArreglada=[]
-
-                const dataCAdena = JSON.stringify(resultado.data)  
- 
 
 
-                const dataBruta =  JSON.parse(dataCAdena)
+                const dataArreglada = []
+
+                const dataCAdena = JSON.stringify(resultado.data)
+
+
+
+                const dataBruta = JSON.parse(dataCAdena)
                 _.forEach(dataBruta, function (value, key) {
                     // value.falla = "Soy hermoso" + key ;
-             
-                     if(value.falla  !== ""){
 
-                        var jsonFallas = JSON.parse(value.falla ) 
-                        var cadenaFallas ="";
+                    if (value.falla !== "") {
+
+                        var jsonFallas = JSON.parse(value.falla)
+                        var cadenaFallas = "";
                         _.forEach(jsonFallas, function (value, key) {
-                            cadenaFallas +=   value.LABEL + ", "
+                            cadenaFallas += value.LABEL + ", "
                         })
-                        value.falla = cadenaFallas.slice(3,-2);
-                     }
-                    
-                    
+                        value.falla = cadenaFallas.slice(3, -2);
+                    }
+
+
                     dataArreglada.push(value)
                 })
-                  setReporteOrdenesProesada(dataArreglada)
+                setReporteOrdenesProesada(dataArreglada)
 
 
-                
+
             }
             consultarApi()
             guardarRecargarProductos(false)
@@ -416,6 +434,10 @@ function Menu(props) {
             setRecargarClientes(false)
         }
 
+
+     
+        const tiempo= verificarSessionInactiva()
+        return () => { clearInterval(tiempo) ;  console.log("Destroy for inactivity") }
 
 
     }, [recargarProductos, recargarClientes, recargarUsuarios, recargarComboUsuario, recargarCombos, recargarColegios])
@@ -559,7 +581,7 @@ function Menu(props) {
                                 <Route exact path="/ordenesgarantia"
                                     render={() => (
                                         <OrdenesGarantia
-                                            Reporteordenes={Reporteordenes}
+                                            Reporteordenes={ReporteOrdenesProesada}
                                             guardarRecargarProductos={guardarRecargarProductos}
                                         ></OrdenesGarantia>
                                     )}
@@ -629,6 +651,8 @@ function Menu(props) {
                                         var esTecn = (JSON.parse(localStorage.getItem('usuario')).rol === ROL_ADMINISTRADOR) ? false : true
                                         return (
                                             <EditarOrden ReportClientes={ReportClientes}
+                                                setRecargarCombos={setRecargarCombos}
+                                                catalogFallas={catalogFallas}
                                                 back="/ordenesgarantia"
                                                 marcas={marcas}
                                                 esTecnico={esTecn}

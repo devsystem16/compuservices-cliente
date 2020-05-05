@@ -126,6 +126,7 @@ const useStyles = makeStyles(theme => ({
 function EditarOrden({ setRecargarCombos, catalogFallas, history, back, esTecnico, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
 
 
+  console.log("GARANTA ",orden)
   var fallasDefaults = []
   if (orden.falla === null || orden.falla === "") {
     fallasDefaults =  null

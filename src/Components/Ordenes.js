@@ -28,13 +28,13 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withRouter } from 'react-router-dom'
- 
+
 
 import OrdenDiseño from './ImprimirOrden/OrdenDiseño'
 
 
 
- 
+
 import { API_GET_REPORTE_ORDEN_GARANTIA, API_GET_UNA_ORDEN, API_POST_GUARDAR_ORDEN, ROL_ADMINISTRADOR } from '../Constantes'
 
 
@@ -71,7 +71,7 @@ class Ordenes extends Component {
         }
     }
 
- 
+
 
     customers = () => {
         let custs = []
@@ -101,6 +101,21 @@ class Ordenes extends Component {
     abrirModalVerORden = async () => {
 
         let response = await axios.get(`${API_GET_UNA_ORDEN}/${localStorage.getItem("current_IDOrden")}`)
+
+
+        const dataBruta = response.data[0]
+
+        if (dataBruta.falla !== null && dataBruta.falla !== "") {
+            var jsonFallas = JSON.parse(dataBruta.falla)
+            var cadenaFallas = "";
+            _.forEach(jsonFallas, function (value, key) {
+                cadenaFallas += value.LABEL + ", "
+            })
+            cadenaFallas = cadenaFallas.slice(3, -2);
+            dataBruta.falla = cadenaFallas;
+        }
+
+
         this.setState({
             unaOrden: response.data[0],
             modalImpresionOrden: true
@@ -431,8 +446,8 @@ class Ordenes extends Component {
 
 
         var data = this.props.Reporteordenes
- 
-       
+
+
 
         const options = {
             download: false,
@@ -477,9 +492,9 @@ class Ordenes extends Component {
                     </Fab>
                 </Link>
 
-              <div id="tablaDatosOrdenes">
+                <div id="tablaDatosOrdenes">
 
-           
+
                     <MUIDataTable
                         title={"Listado Ordenes"}
                         data={data}
