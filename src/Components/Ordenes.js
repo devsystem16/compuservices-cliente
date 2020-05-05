@@ -364,6 +364,14 @@ class Ordenes extends Component {
                 }
             },
             {
+                name: "fechaReparacion",
+                label: "F. reparación",
+                options: {
+                    filter: true,
+                    sort: false,
+                }
+            },
+            {
                 name: "garantia",
                 label: "Garantia",
                 options: {
@@ -371,6 +379,25 @@ class Ordenes extends Component {
                     sort: false,
                 }
             },
+            {
+                name: "distrito",
+                label: "Distrito",
+                options: {
+                    filter: true,
+                    sort: false,
+                }
+            },
+            {
+                name: "ie",
+                label: "IE",
+                options: {
+                    filter: true,
+                    sort: false,
+                }
+            },
+
+
+
 
             {
                 name: "",

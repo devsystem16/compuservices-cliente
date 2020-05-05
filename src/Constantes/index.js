@@ -92,3 +92,6 @@ export const ROL_HAITECH =  "Haitech"
 export const API_DISTRITO = apiCompuServices + "distrito"
 export const API_COLEGIOS = apiCompuServices + "colegios"
 export const API_CATALOGO_FALLAS = apiCompuServices + "catalogofallas"
+
+
+export const TIME_FOR_LOGOUT_INACTIVE =  300

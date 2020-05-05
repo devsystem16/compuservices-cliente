@@ -345,7 +345,30 @@ class OrdenesGarantia extends Component {
                     sort: false,
                 }
             },
-
+            {
+                name: "fechaReparacion",
+                label: "F. reparación",
+                options: {
+                    filter: true,
+                    sort: false,
+                }
+            },
+            {
+                name: "distrito",
+                label: "Distrito",
+                options: {
+                    filter: true,
+                    sort: false,
+                }
+            },
+            {
+                name: "ie",
+                label: "IE",
+                options: {
+                    filter: true,
+                    sort: false,
+                }
+            },
 
 
             {

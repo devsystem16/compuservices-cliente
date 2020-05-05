@@ -44,7 +44,7 @@ import PeopleAlt from '@material-ui/icons/NaturePeopleOutlined';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 
 
-import { API_CATALOGO_FALLAS, API_COLEGIOS, API_DISTRITO, ROL_HAITECH, API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
+import { TIME_FOR_LOGOUT_INACTIVE , API_CATALOGO_FALLAS, API_COLEGIOS, API_DISTRITO, ROL_HAITECH, API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
 
 
 const drawerWidth = 240;
@@ -200,13 +200,13 @@ function Menu(props) {
     function verificarSessionInactiva (){
         
         var interval = 1000;
-        var IDLE_TIMEOUT = 10;
+        var IDLE_TIMEOUT = TIME_FOR_LOGOUT_INACTIVE;
         var idleCounter = 0;
         document.onmousemove = document.onkeypress = function () {
             idleCounter = 0;
         }
         const tiempo=   window.setInterval(function () {
-            console.log(idleCounter)
+            // console.log(idleCounter)
             if (++idleCounter >= IDLE_TIMEOUT) {
                 console.log('Login  Again')
                 idleCounter = 0;
