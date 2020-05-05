@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import { withRouter } from 'react-router-dom'
-
+import moment from 'moment';
 import Swal from "sweetalert2";
 import { makeStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -21,14 +21,15 @@ import SearchIcon from '@material-ui/icons/Search';
 import uuid from 'uuid/v4'
 import _ from 'lodash'
 import { getCurrentDate } from '../../utils'
-import {API_CATALOGO_FALLAS, API_GET_ORDEN_CODIGO, API_POST_GUARDAR_ORDEN,   API_MARCA,API_TIPO_EQUIPO} from "../../Constantes";
+import { API_CATALOGO_FALLAS, API_GET_ORDEN_CODIGO, API_POST_GUARDAR_ORDEN, API_MARCA, API_TIPO_EQUIPO } from "../../Constantes";
 
 import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
 
 import Autocomplete from '../Autocomplete'
- 
- 
+import FechaListo from '../FechaListo';
+
+
 
 const useStyles = makeStyles(theme => ({
 
@@ -87,7 +88,7 @@ const useStyles = makeStyles(theme => ({
     height: 0,
     marginLeft: "-15px",
     marginTop: 15,
-    backgroundColor:"#a7aab9"
+    backgroundColor: "#a7aab9"
 
   },
 
@@ -115,13 +116,15 @@ const useStyles = makeStyles(theme => ({
 
 
 
-function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
+function TextFields({ catalogFallas, setRecargarCombos, history, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
 
 
 
   const [nuevasFallas, setNuevasFallas] = React.useState([])
 
-
+  const [modalFechaReparacion, setmodalFechaReparacion] = useState(false)
+  const [mensajeEstadoOrden, setmensajeEstadoOrden] = useState("Por favor, seleccione un estado");
+  const [fechaReparacion, setfechaReparacion] = useState(getCurrentDate('-'))
 
   var datos = ReportClientes;
 
@@ -161,6 +164,12 @@ function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargar
   };
 
   const cambioEstadosOrden = name => event => {
+    if (event.nativeEvent.explicitOriginalTarget.textContent === "LISTO") {
+      setmodalFechaReparacion(true)
+    } else {
+      setmensajeEstadoOrden("Por favor, seleccione un estado")
+    }
+
     setEstadosOrden({ ...values, [name]: event.target.value });
   };
 
@@ -272,19 +281,19 @@ function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargar
       cancelButtonText: 'Cancelar',
       showLoaderOnConfirm: true,
       preConfirm: (login) => {
- 
-          var TipoEquipo = {
-            IDTipoEquipo: uuid(),
-            descripcion: login,
-            IDStatus: localStorage.getItem("IDStatusActivo")
-          }
-          axios.post(API_TIPO_EQUIPO,TipoEquipo).then(respose => {
-            setRecargarCombos(true)
-          })
+
+        var TipoEquipo = {
+          IDTipoEquipo: uuid(),
+          descripcion: login,
+          IDStatus: localStorage.getItem("IDStatusActivo")
+        }
+        axios.post(API_TIPO_EQUIPO, TipoEquipo).then(respose => {
+          setRecargarCombos(true)
+        })
         // })
       },
       allowOutsideClick: () => !Swal.isLoading()
-    }) 
+    })
   }
 
   const agregarMarca = (e) => {
@@ -299,76 +308,90 @@ function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargar
       cancelButtonText: 'Cancelar',
       showLoaderOnConfirm: true,
       preConfirm: (marcaText) => {
- 
-          var marca = {
-            IDMarca: uuid(),
-            descripcion: marcaText,
-            IDStatus: localStorage.getItem("IDStatusActivo")
-          }
-          axios.post( API_MARCA ,marca).then(respose => {
-            setRecargarCombos(true)
-          })
+
+        var marca = {
+          IDMarca: uuid(),
+          descripcion: marcaText,
+          IDStatus: localStorage.getItem("IDStatusActivo")
+        }
+        axios.post(API_MARCA, marca).then(respose => {
+          setRecargarCombos(true)
+        })
         // })
       },
       allowOutsideClick: () => !Swal.isLoading()
-    }) 
+    })
   }
 
   const guardarOrden = (e) => {
 
-    const fallasSeleccionEnter = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === undefined })
-    const fallasSeleccionadasDelListado = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value !== "INSERTAR_FALLA" && fallas.value !== undefined })
-    const fallasNuevasInsertadas = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === "INSERTAR_FALLA" })
-    const fallasNuevasConID = []
-    const dataInsert = []
+    var fallasListadoyNuevas;
 
-    _.forEach(fallasSeleccionEnter, function (value, key) {
-      var id = uuid();
-
-      var unaFalla = {
-        value: id,
-        label: value
-      }
-      fallasNuevasConID.push(unaFalla)
-
-      unaFalla = {
-        IDCatalogoFallas: id,
-        descripcion: value,
-        IDStatus: localStorage.getItem("IDStatusActivo")
-      }
-      dataInsert.push(unaFalla)
+    if (nuevasFallas.length > 0) {
 
 
-    });
+      const fallasSeleccionEnter = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === undefined })
+      const fallasSeleccionadasDelListado = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value !== "INSERTAR_FALLA" && fallas.value !== undefined })
+      const fallasNuevasInsertadas = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === "INSERTAR_FALLA" })
+      const fallasNuevasConID = []
+      const dataInsert = []
 
-    _.forEach(fallasNuevasInsertadas, function (value, key) {
+      _.forEach(fallasSeleccionEnter, function (value, key) {
+        var id = uuid();
 
-      var id = uuid();
+        var unaFalla = {
+          value: id,
+          label: value
+        }
+        fallasNuevasConID.push(unaFalla)
 
-      var unaFalla = {
-        value: id,
-        label: value.nombreFalla
+        unaFalla = {
+          IDCatalogoFallas: id,
+          descripcion: value,
+          IDStatus: localStorage.getItem("IDStatusActivo")
+        }
+        dataInsert.push(unaFalla)
 
-      }
-      fallasNuevasConID.push(unaFalla)
 
-      unaFalla = {
-        IDCatalogoFallas: id,
-        descripcion: value.nombreFalla,
-        IDStatus: localStorage.getItem("IDStatusActivo")
-      }
-      dataInsert.push(unaFalla)
-    });
+      });
 
-    var fallasListadoyNuevas = _.concat(fallasSeleccionadasDelListado, fallasNuevasConID);
+      _.forEach(fallasNuevasInsertadas, function (value, key) {
 
- 
+        var id = uuid();
 
-    axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
-      console.log("estado insercion fallas", rest.data)
-    })
+        var unaFalla = {
+          value: id,
+          label: value.nombreFalla
 
- 
+        }
+        fallasNuevasConID.push(unaFalla)
+
+        unaFalla = {
+          IDCatalogoFallas: id,
+          descripcion: value.nombreFalla,
+          IDStatus: localStorage.getItem("IDStatusActivo")
+        }
+        dataInsert.push(unaFalla)
+      });
+
+      fallasListadoyNuevas = _.concat(fallasSeleccionadasDelListado, fallasNuevasConID);
+      fallasListadoyNuevas = JSON.stringify(fallasListadoyNuevas)
+
+
+      axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
+        console.log("estado insercion fallas", rest.data)
+      })
+
+
+
+    }else {
+       fallasListadoyNuevas = null;
+    }
+
+
+
+
+
 
     e.preventDefault();
     const { modelo, serie, accesorios, fallas, total, abono, saldo, informe } = valores
@@ -444,45 +467,46 @@ function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargar
     })
 
     axios.get(API_GET_ORDEN_CODIGO).then(nOrden => {
- 
 
 
-        const orden = {
-          IDOrden:  uuid() 
-          , numeroOrden: nOrden.data[0].codigo
-          , modelo: modelo.toUpperCase()
-          , serie: serie.toUpperCase()
-          , accesorios: accesorios.toUpperCase()
-          , falla: JSON.stringify(fallasListadoyNuevas)// fallas.toUpperCase()
-          , fecha: getCurrentDate('-')
-          , total: valorTotal
-          , informeTecnico: informe.toUpperCase()
-          , IDTipoEquipo: values.currency
-          , IDMarca: objMarcas.marcas
-          , IDCliente: JSON.parse(localStorage.getItem('currentCliente')).IDCliente
-          , IDStatus: localStorage.getItem('IDStatusActivo')
-          , IDGarantia: objGarantias.garantias
-          , IDUsuario: (JSON.parse(localStorage.getItem('usuario')).IDUsuario)
-          , IDEstadoOrden: objEstadosOrden.estadosOrden
-          , orden_varchar1: ''
-          , orden_varchar2: ''
-          , orden_entero1: valorAbono
-          , orden_entero2: ''
-        }
 
-        axios.post(API_POST_GUARDAR_ORDEN, orden).then(resp => {
+      const orden = {
+        IDOrden: uuid()
+        , numeroOrden: nOrden.data[0].codigo
+        , modelo: modelo.toUpperCase()
+        , serie: serie.toUpperCase()
+        , accesorios: accesorios.toUpperCase()
+        , falla: fallasListadoyNuevas 
+        , fecha: getCurrentDate('-')
+        , total: valorTotal
+        , informeTecnico: informe.toUpperCase()
+        , IDTipoEquipo: values.currency
+        , IDMarca: objMarcas.marcas
+        , IDCliente: JSON.parse(localStorage.getItem('currentCliente')).IDCliente
+        , IDStatus: localStorage.getItem('IDStatusActivo')
+        , IDGarantia: objGarantias.garantias
+        , IDUsuario: (JSON.parse(localStorage.getItem('usuario')).IDUsuario)
+        , IDEstadoOrden: objEstadosOrden.estadosOrden
+        , orden_varchar1: ''
+        , orden_varchar2: ''
+        , orden_entero1: valorAbono
+        , orden_entero2: ''
+        , orden_varchar1: fechaReparacion
+      }
 
-          guardarRecargarProductos(true)
-          setRecargarCombos(true)
-          history.push('/ordenes')
-          Swal.fire({
-            title: 'Un momento',
-            timer: 1500,
-            onBeforeOpen: () => {
-              Swal.showLoading()
-            },
-          })
+      axios.post(API_POST_GUARDAR_ORDEN, orden).then(resp => {
+
+        guardarRecargarProductos(true)
+        setRecargarCombos(true)
+        history.push('/ordenes')
+        Swal.fire({
+          title: 'Un momento',
+          timer: 1500,
+          onBeforeOpen: () => {
+            Swal.showLoading()
+          },
         })
+      })
 
 
 
@@ -514,8 +538,8 @@ function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargar
     setBanderaModalNuevaOrden(true)
   }
 
-  var nombres =  ((JSON.parse(localStorage.getItem('usuario')).nombre1) !== null)  ? (JSON.parse(localStorage.getItem('usuario')).nombre1) : ""
-  var apellidos =((JSON.parse(localStorage.getItem('usuario')).apellidoPaterno) !== null)  ? (JSON.parse(localStorage.getItem('usuario')).apellidoPaterno) : ""   
+  var nombres = ((JSON.parse(localStorage.getItem('usuario')).nombre1) !== null) ? (JSON.parse(localStorage.getItem('usuario')).nombre1) : ""
+  var apellidos = ((JSON.parse(localStorage.getItem('usuario')).apellidoPaterno) !== null) ? (JSON.parse(localStorage.getItem('usuario')).apellidoPaterno) : ""
 
   return (
     <div >
@@ -645,13 +669,13 @@ function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargar
 
           onChange={fn_onChange}
         /> */}
-        
+
 
         <Autocomplete
           className={classes.textField}
           classe={classes.textFieldInforme}
           catalogFallas={catalogFallas}
-          fallasDefault=  {null}
+          fallasDefault={null}
           setNuevasFallas={setNuevasFallas}
         />
 
@@ -659,9 +683,9 @@ function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargar
           id="standard-dense"
           label="Recibido por"
           name="total"
-          disabled={true}  
+          disabled={true}
           // {"IDUsuario":"840d6dab-8a48-4e3c-b399-684492e4e786","cedula":"1205627548","nombre1":"Natalia","nombre2":"Alejandrina","apellidoPaterno":"Rosero","apellidoMaterno":"Suárez","celular":"0982202420","direccion":"Bolívar #1229 y Décima Segunda","correo":"angelitonaty@hotmail.com","IDStatus":"e9190c49-9422-11e9-a5f4-141877d4ed22","nick":"Naty","pass":"0709","IDRol":"d0da6713-9422-11e9-a5f4-141877d4ed22","rol":"Administrador"}
-          value={ `${nombres} ${apellidos}` }
+          value={`${nombres} ${apellidos}`}
           className={clsx(classes.textField, classes.dense)}
           margin="dense"
           onChange={fn_onChange}
@@ -764,7 +788,7 @@ function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargar
               className: classes.menu,
             },
           }}
-          helperText="Por favor, seleccione una marca"
+          helperText={mensajeEstadoOrden}
           margin="normal"
         >
           {ordenesStatus.map(option => (
@@ -826,6 +850,18 @@ function TextFields({catalogFallas, setRecargarCombos , history, guardarRecargar
       ) : (
           <div></div>
         )}
+
+
+      <FechaListo
+        setmodalFechaReparacion={setmodalFechaReparacion}
+        modalFechaReparacion={modalFechaReparacion}
+
+        mensajeEstadoOrden={mensajeEstadoOrden}
+        setmensajeEstadoOrden={setmensajeEstadoOrden}
+
+        setfechaReparacion={setfechaReparacion}
+        fechaReparacion={fechaReparacion}
+      />
 
     </div>
   );

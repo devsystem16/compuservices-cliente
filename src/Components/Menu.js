@@ -359,12 +359,18 @@ function Menu(props) {
                 const dataBruta =  JSON.parse(dataCAdena)
                 _.forEach(dataBruta, function (value, key) {
                     // value.falla = "Soy hermoso" + key ;
-                    var jsonFallas = JSON.parse(value.falla ) 
-                    var cadenaFallas ="";
-                    _.forEach(jsonFallas, function (value, key) {
-                        cadenaFallas +=   value.LABEL + ", "
-                    })
-                    value.falla = cadenaFallas.slice(3,-2);
+             
+                     if(value.falla  !== ""){
+
+                        var jsonFallas = JSON.parse(value.falla ) 
+                        var cadenaFallas ="";
+                        _.forEach(jsonFallas, function (value, key) {
+                            cadenaFallas +=   value.LABEL + ", "
+                        })
+                        value.falla = cadenaFallas.slice(3,-2);
+                     }
+                    
+                    
                     dataArreglada.push(value)
                 })
                   setReporteOrdenesProesada(dataArreglada)

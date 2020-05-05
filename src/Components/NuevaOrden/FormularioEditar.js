@@ -123,20 +123,25 @@ const useStyles = makeStyles(theme => ({
 
 
 
-function EditarOrden({setRecargarCombos, catalogFallas, history, back, esTecnico, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
+function EditarOrden({ setRecargarCombos, catalogFallas, history, back, esTecnico, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
+
+
+  var fallasDefaults = []
+  if (orden.falla === null || orden.falla === "") {
+    fallasDefaults =  null
+  } else {
+    fallasDefaults = JSON.parse(orden.falla.toLowerCase()) 
+  }
 
 
   const [nuevasFallas, setNuevasFallas] = React.useState([])
 
-  const guardarCatalogoFallas = () => {
-
-  }
 
   var datos = ReportClientes;
 
   const classes = useStyles();
 
-  const [mensajeEstadoOrden, setmensajeEstadoOrden] = useState("Por favor, seleccione un estado")
+  const [mensajeEstadoOrden, setmensajeEstadoOrden] = useState(orden.fechaReparacion)
 
 
 
@@ -285,56 +290,65 @@ function EditarOrden({setRecargarCombos, catalogFallas, history, back, esTecnico
 
   const guardarOrden = () => {
 
-    const fallasSeleccionEnter = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === undefined })
-    const fallasSeleccionadasDelListado = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value !== "INSERTAR_FALLA" && fallas.value !== undefined })
-    const fallasNuevasInsertadas = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === "INSERTAR_FALLA" })
-    const fallasNuevasConID = []
-    const dataInsert = []
+    var fallasListadoyNuevas;
 
-    _.forEach(fallasSeleccionEnter, function (value, key) {
-      var id = uuid();
+    if (nuevasFallas.length > 0) {
+      const fallasSeleccionEnter = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === undefined })
+      const fallasSeleccionadasDelListado = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value !== "INSERTAR_FALLA" && fallas.value !== undefined })
+      const fallasNuevasInsertadas = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === "INSERTAR_FALLA" })
+      const fallasNuevasConID = []
+      const dataInsert = []
+  
+  
+      _.forEach(fallasSeleccionEnter, function (value, key) {
+        var id = uuid();
+  
+        var unaFalla = {
+          value: id,
+          label: value
+        }
+        fallasNuevasConID.push(unaFalla)
+  
+        unaFalla = {
+          IDCatalogoFallas: id,
+          descripcion: value,
+          IDStatus: localStorage.getItem("IDStatusActivo")
+        }
+        dataInsert.push(unaFalla)
+  
+  
+      });
+  
+      _.forEach(fallasNuevasInsertadas, function (value, key) {
+  
+        var id = uuid();
+  
+        var unaFalla = {
+          value: id,
+          label: value.nombreFalla
+  
+        }
+        fallasNuevasConID.push(unaFalla)
+  
+        unaFalla = {
+          IDCatalogoFallas: id,
+          descripcion: value.nombreFalla,
+          IDStatus: localStorage.getItem("IDStatusActivo")
+        }
+        dataInsert.push(unaFalla)
+      });
+  
+        fallasListadoyNuevas = _.concat(fallasSeleccionadasDelListado, fallasNuevasConID);
+        fallasListadoyNuevas = JSON.stringify(fallasListadoyNuevas)
+  
+      axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
+        console.log("estado insercion fallas", rest.data)
+      })
 
-      var unaFalla = {
-        value: id,
-        label: value
-      }
-      fallasNuevasConID.push(unaFalla)
-
-      unaFalla = {
-        IDCatalogoFallas: id,
-        descripcion: value,
-        IDStatus: localStorage.getItem("IDStatusActivo")
-      }
-      dataInsert.push(unaFalla)
-
-
-    });
-
-    _.forEach(fallasNuevasInsertadas, function (value, key) {
-
-      var id = uuid();
-
-      var unaFalla = {
-        value: id,
-        label: value.nombreFalla
-
-      }
-      fallasNuevasConID.push(unaFalla)
-
-      unaFalla = {
-        IDCatalogoFallas: id,
-        descripcion: value.nombreFalla,
-        IDStatus: localStorage.getItem("IDStatusActivo")
-      }
-      dataInsert.push(unaFalla)
-    });
-
-    var fallasListadoyNuevas = _.concat(fallasSeleccionadasDelListado, fallasNuevasConID);
-
-
-    axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
-      console.log("estado insercion fallas", rest.data)
-    })
+    }else {
+      fallasListadoyNuevas = null;
+   }
+    
 
 
     const { modelo, serie, accesorios, fallas, total, abono, saldo, informe } = valores
@@ -344,7 +358,7 @@ function EditarOrden({setRecargarCombos, catalogFallas, history, back, esTecnico
       modelo: modelo.toUpperCase()
       , serie: serie.toUpperCase()
       , accesorios: (accesorios === null) ? "" : accesorios.toUpperCase()
-      , falla: JSON.stringify(fallasListadoyNuevas)  // (fallas === null) ? "" : fallas.toUpperCase()
+      , falla: fallasListadoyNuevas  // (fallas === null) ? "" : fallas.toUpperCase()
       // , fecha: getCurrentDate('-')
       , total: total
       , informeTecnico: (informe === null) ? "" : informe.toUpperCase()
@@ -362,7 +376,7 @@ function EditarOrden({setRecargarCombos, catalogFallas, history, back, esTecnico
 
     axios.post(`${API_POST_GUARDAR_ORDEN}/${localStorage.getItem('current_IDOrden')}`, orden).then(responseA => {
 
-      
+
       guardarRecargarProductos(true)
       setRecargarCombos(true)
       history.push(back)
@@ -512,27 +526,12 @@ function EditarOrden({setRecargarCombos, catalogFallas, history, back, esTecnico
           name="accesorios"
           onChange={fn_onChange}
         />
-        {
-          /* <TextField
-          id="standard-password-inputa"
-          label="Falla/as"
-          name="fallas"
-          disabled={esTecnico}
-          multiline
-          //  defaultValue={orden.falla}
-          value={valores.fallas}
-          rowsMax="20"
-          className={classes.textFieldInforme}
-          margin="normal"
 
-          onChange={fn_onChange}
-        /> */
-        }
 
         <Autocomplete
           className={classes.textField}
           catalogFallas={catalogFallas}
-          fallasDefault={JSON.parse(orden.falla.toLowerCase())}
+          fallasDefault={fallasDefaults}
           setNuevasFallas={setNuevasFallas}
         />
 
@@ -542,8 +541,6 @@ function EditarOrden({setRecargarCombos, catalogFallas, history, back, esTecnico
           select
           disabled={true}
           label="Recibido por"
-          // className={classes.textField}
-          // style={{ display: "none" }}
           value={objOperarios.operarios}
           onChange={cambioOperarios('operarios')}
           SelectProps={{
