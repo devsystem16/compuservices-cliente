@@ -122,8 +122,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-
-function EditarOrden({ setRecargarCombos, catalogFallas, history, back, esTecnico, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
+function EditarOrden({  setRecargarColegios, setCurrentDistrito,Colegios , Distritos , setRecargarCombos, catalogFallas, history, back, esTecnico, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
 
 
   console.log("GARANTA ",orden)
@@ -292,14 +291,12 @@ function EditarOrden({ setRecargarCombos, catalogFallas, history, back, esTecnic
   const guardarOrden = () => {
 
     var fallasListadoyNuevas;
-
-    if (nuevasFallas.length > 0) {
+    if (nuevasFallas.length > 2) {
       const fallasSeleccionEnter = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === undefined })
       const fallasSeleccionadasDelListado = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value !== "INSERTAR_FALLA" && fallas.value !== undefined })
       const fallasNuevasInsertadas = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === "INSERTAR_FALLA" })
       const fallasNuevasConID = []
       const dataInsert = []
-  
   
       _.forEach(fallasSeleccionEnter, function (value, key) {
         var id = uuid();
@@ -342,9 +339,13 @@ function EditarOrden({ setRecargarCombos, catalogFallas, history, back, esTecnic
         fallasListadoyNuevas = _.concat(fallasSeleccionadasDelListado, fallasNuevasConID);
         fallasListadoyNuevas = JSON.stringify(fallasListadoyNuevas)
   
-      axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
-        console.log("estado insercion fallas", rest.data)
-      })
+        
+      if (dataInsert.length > 0) {
+        axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
+          console.log("estado insercion fallas", rest.data)
+        })
+      }
+      
 
     }else {
       fallasListadoyNuevas = null;
@@ -534,6 +535,7 @@ function EditarOrden({ setRecargarCombos, catalogFallas, history, back, esTecnic
           catalogFallas={catalogFallas}
           fallasDefault={fallasDefaults}
           setNuevasFallas={setNuevasFallas}
+          activo={esTecnico}
         />
 
 
@@ -695,7 +697,12 @@ function EditarOrden({ setRecargarCombos, catalogFallas, history, back, esTecnic
           handleCloseModalCliente={SetStatusModal}
           ReportClientes={datos} Ciudades={Ciudades}
           setRecargarClientes={setRecargarClientes}
-
+          Distritos={Distritos}
+          Colegios={Colegios}
+          setCurrentDistrito={setCurrentDistrito}
+          setRecargarColegios={setRecargarColegios}
+          setRecargarClientes={setRecargarClientes}
+          
         />
       ) : (
           <div></div>

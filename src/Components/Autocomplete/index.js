@@ -20,13 +20,13 @@ const useStyles = makeStyles((theme) => ({
 
 const filter = createFilterOptions();
 
-export default function AutocompleteSugerencias({ classe,className,catalogFallas, fallasDefault, setNuevasFallas }) {
+export default function AutocompleteSugerencias({ activo, classe, className, catalogFallas, fallasDefault, setNuevasFallas }) {
 
     const ccccc = useStyles();
-  
- 
+
+
     // const [nuevasFallas , setNuevasFallas] = React.useState([])
- 
+
     const catalogoErroresDefault = [
         catalogFallas[0],
         catalogFallas[4]
@@ -65,121 +65,123 @@ export default function AutocompleteSugerencias({ classe,className,catalogFallas
 
 
 
-  if(fallasDefault === null) {
-    return (
-        <React.Fragment>
-            <Autocomplete
-                multiple
-                id="free-solo-dialog-demo"
-                options={catalogFallas}
-                onChange={(event, newValue) => {
-                    setNuevasFallas( JSON.stringify(newValue))
-                    setValue(newValue);
-                    
-                }}
+    if (fallasDefault === null) {
+        return (
+            <React.Fragment>
+                <Autocomplete
 
-                filterOptions={(options, params) => {
-                    const filtered = filter(options, params);
-              
-                    if (params.inputValue !== '') {
-                  
-                        filtered.push({
-                            value: "INSERTAR_FALLA",
-                            label: `Añadir "${params.inputValue}"`,
-                            nombreFalla: params.inputValue
-                            // label:  params.inputValue
-                        });
-                    }
-                    return filtered;
-                }}
+                    multiple
+                    id="free-solo-dialog-demo"
+                    options={catalogFallas}
+                    onChange={(event, newValue) => {
+                        setNuevasFallas(JSON.stringify(newValue))
+                        setValue(newValue);
 
-                getOptionLabel={(option) => {
-                    if (typeof option === 'string') {
-                        return option;
-                    }
-                    if (option.nombreFalla) {
-                
-                        return option.nombreFalla;
-                    } 
-                    return option.label;
-                }}
-                selectOnFocus
-                clearOnBlur
-                renderOption={(option) => option.label}
-                style={{ width: 800 }}
-                freeSolo
-                renderInput={(params) => (
-                    <TextField {...params} className={classe} label="Fallas"
-                        multiline
-                        margin="dense"
-                        rowsMax="20"
-                        disabled={false}
-                    />
-                )}
-            />
-        </React.Fragment>
-    );
-  }else {
-    return (
-        <React.Fragment>
-            <Autocomplete
-                defaultValue={fallasDefault}
-                multiple
-                id="free-solo-dialog-demo"
-                options={catalogFallas}
-                onChange={(event, newValue) => {
+                    }}
 
-                    setNuevasFallas( JSON.stringify(newValue))
-                    setValue(newValue);
-                    
-                }}
+                    filterOptions={(options, params) => {
+                        const filtered = filter(options, params);
 
-                filterOptions={(options, params) => {
-                    const filtered = filter(options, params);
-              
-                    if (params.inputValue !== '') {
-                  
-                        filtered.push({
-                            value: "INSERTAR_FALLA",
-                            label: `Añadir "${params.inputValue}"`,
-                            nombreFalla: params.inputValue
-                            // label:  params.inputValue
-                        });
-                    }
-                    return filtered;
-                }}
+                        if (params.inputValue !== '') {
 
-                getOptionLabel={(option) => {
-                    if (typeof option === 'string') {
-                        return option;
-                    }
-                    if (option.nombreFalla) {
-                
-                        return option.nombreFalla;
-                    } 
-                    return option.label;
-                }}
-                selectOnFocus
-                clearOnBlur
-                renderOption={(option) => option.label}
-                style={{ width: 800 }}
-                freeSolo
-                renderInput={(params) => (
-                    <TextField {...params} className={classe} label="Fallas"
-                        multiline
-                        margin="dense"
-                        rowsMax="20"
-                        disabled={false}
-                    />
-                )}
-            />
-        </React.Fragment>
-    );
-  }
-    
+                            filtered.push({
+                                value: "INSERTAR_FALLA",
+                                label: `Añadir "${params.inputValue}"`,
+                                nombreFalla: params.inputValue
+                                // label:  params.inputValue
+                            });
+                        }
+                        return filtered;
+                    }}
+
+                    getOptionLabel={(option) => {
+                        if (typeof option === 'string') {
+                            return option;
+                        }
+                        if (option.nombreFalla) {
+
+                            return option.nombreFalla;
+                        }
+                        return option.label;
+                    }}
+                    selectOnFocus
+                    clearOnBlur
+                    renderOption={(option) => option.label}
+                    style={{ width: 800 }}
+                    freeSolo
+                    renderInput={(params) => (
+                        <TextField {...params} className={classe} label="Fallas"
+                            multiline
+                            margin="dense"
+                            rowsMax="20"
+
+                        />
+                    )}
+                />
+            </React.Fragment>
+        );
+    } else {
+        return (
+            <React.Fragment>
+                <Autocomplete
+                    defaultValue={fallasDefault}
+                    disabled={activo}
+                    multiple
+                    id="free-solo-dialog-demo"
+                    options={catalogFallas}
+                    onChange={(event, newValue) => {
+
+                        setNuevasFallas(JSON.stringify(newValue))
+                        setValue(newValue);
+
+                    }}
+
+                    filterOptions={(options, params) => {
+                        const filtered = filter(options, params);
+
+                        if (params.inputValue !== '') {
+
+                            filtered.push({
+                                value: "INSERTAR_FALLA",
+                                label: `Añadir "${params.inputValue}"`,
+                                nombreFalla: params.inputValue
+                                // label:  params.inputValue
+                            });
+                        }
+                        return filtered;
+                    }}
+
+                    getOptionLabel={(option) => {
+                        if (typeof option === 'string') {
+                            return option;
+                        }
+                        if (option.nombreFalla) {
+
+                            return option.nombreFalla;
+                        }
+                        return option.label;
+                    }}
+                    selectOnFocus
+                    clearOnBlur
+                    renderOption={(option) => option.label}
+                    style={{ width: 800 }}
+                    freeSolo
+                    renderInput={(params) => (
+                        <TextField {...params} className={classe} label="Fallas"
+                            multiline
+                            margin="dense"
+                            rowsMax="20"
+                            disabled={false}
+                        />
+                    )}
+                />
+            </React.Fragment>
+        );
+    }
+
 }
 
 
- 
+
 // Top 100 films as rated by IMDb users. http://www.imdb.com/chart/top
 // const top100Films =catalogFallas;

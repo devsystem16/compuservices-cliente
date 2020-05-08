@@ -123,7 +123,7 @@ class OrdenesGarantia extends Component {
                     _.forEach(jsonFallas, function (value, key) {
                         cadenaFallas += value.label + ", "
                     })
-                    value.FALLA = cadenaFallas.slice(3, -2).toUpperCase();
+                    value.FALLA = cadenaFallas.slice(0, -2).toUpperCase();
                 }
             }
             dataArreglada.push(value)
@@ -142,7 +142,7 @@ class OrdenesGarantia extends Component {
                     _.forEach(jsonFallas, function (value, key) {
                         cadenaFallas += value.label + ", "
                     })
-                    value.INCIDENTE = cadenaFallas.slice(3, -2).toUpperCase();
+                    value.INCIDENTE = cadenaFallas.slice(0, -2).toUpperCase();
                 }
            
             dataArreglada.push(value)
@@ -176,10 +176,7 @@ class OrdenesGarantia extends Component {
             }else  {
                 dataArreglada = this.procesardata(resultado)
             }
-
-            alert(JSON.stringify(dataArreglada));
-
-
+ 
             const ws = XLSX.utils.json_to_sheet(dataArreglada);
             const wb = { Sheets: { 'Reporte uso de garantia': ws }, SheetNames: ['Reporte uso de garantia'] };
 
@@ -488,7 +485,7 @@ class OrdenesGarantia extends Component {
                         _.forEach(jsonFallas, function (value, key) {
                             cadenaFallas += value.LABEL + ", "
                         })
-                        cadenaFallas = cadenaFallas.slice(3, -2);
+                        cadenaFallas = cadenaFallas.slice(0, -2);
                         dataBruta.falla = cadenaFallas;
                     }
 
@@ -543,7 +540,7 @@ class OrdenesGarantia extends Component {
 
 
 
-                            <OrdenDiseño handleClose={this.handleClose} orden={this.state.unaOrden} ></OrdenDiseño>
+                            <OrdenDiseño  handleClose={this.handleClose} orden={this.state.unaOrden} >  </OrdenDiseño>
 
 
 

@@ -115,8 +115,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
+                                          
 
-function TextFields({ catalogFallas, setRecargarCombos, history, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
+function TextFields({ setRecargarColegios,setCurrentDistrito,Colegios, Distritos , catalogFallas, setRecargarCombos, history, guardarRecargarProductos, tiposEquipos, marcas, ReportClientes, Ciudades, setRecargarClientes, operarios, estadosOrden, garantias, orden }) {
 
 
 
@@ -168,6 +169,7 @@ function TextFields({ catalogFallas, setRecargarCombos, history, guardarRecargar
       setmodalFechaReparacion(true)
     } else {
       setmensajeEstadoOrden("Por favor, seleccione un estado")
+      setfechaReparacion("Por favor, seleccione un estado")
     }
 
     setEstadosOrden({ ...values, [name]: event.target.value });
@@ -324,10 +326,9 @@ function TextFields({ catalogFallas, setRecargarCombos, history, guardarRecargar
   }
 
   const guardarOrden = (e) => {
-
+ 
     var fallasListadoyNuevas;
-
-    if (nuevasFallas.length > 0) {
+    if (nuevasFallas.length > 2) {
 
 
       const fallasSeleccionEnter = _.filter(JSON.parse(nuevasFallas), function (fallas) { return fallas.value === undefined })
@@ -378,21 +379,20 @@ function TextFields({ catalogFallas, setRecargarCombos, history, guardarRecargar
       fallasListadoyNuevas = JSON.stringify(fallasListadoyNuevas)
 
 
-      axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
-        console.log("estado insercion fallas", rest.data)
-      })
+ 
+      if (dataInsert.length > 0) {
+        axios.post(API_CATALOGO_FALLAS, dataInsert).then(rest => {
+          console.log("estado insercion fallas", rest.data)
+        })
+      }
 
 
 
-    }else {
-       fallasListadoyNuevas = null;
+    } else {
+      fallasListadoyNuevas = null;
     }
 
-
-
-
-
-
+ 
     e.preventDefault();
     const { modelo, serie, accesorios, fallas, total, abono, saldo, informe } = valores
 
@@ -476,7 +476,7 @@ function TextFields({ catalogFallas, setRecargarCombos, history, guardarRecargar
         , modelo: modelo.toUpperCase()
         , serie: serie.toUpperCase()
         , accesorios: accesorios.toUpperCase()
-        , falla: fallasListadoyNuevas 
+        , falla: fallasListadoyNuevas
         , fecha: getCurrentDate('-')
         , total: valorTotal
         , informeTecnico: informe.toUpperCase()
@@ -677,6 +677,8 @@ function TextFields({ catalogFallas, setRecargarCombos, history, guardarRecargar
           catalogFallas={catalogFallas}
           fallasDefault={null}
           setNuevasFallas={setNuevasFallas}
+          activo={true}
+                
         />
 
         <TextField
@@ -843,9 +845,15 @@ function TextFields({ catalogFallas, setRecargarCombos, history, guardarRecargar
 
         <ModalOrden setOpenProps={banderaModalNuevaOrden}
           handleCloseModalCliente={SetStatusModal}
-          ReportClientes={datos} Ciudades={Ciudades}
+          ReportClientes={datos} 
+          Ciudades={Ciudades}
           setRecargarClientes={setRecargarClientes}
-
+   
+          Distritos={Distritos}
+          Colegios={Colegios}
+          setCurrentDistrito={setCurrentDistrito}
+          setRecargarColegios={setRecargarColegios}
+     
         />
       ) : (
           <div></div>

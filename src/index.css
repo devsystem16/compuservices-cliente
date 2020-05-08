@@ -16,3 +16,8 @@ code {
 .disable-link {
   pointer-events: none;
 }
+
+/* #tablaDatos table tbody tr td { */
+  #tablaDatos.deClientes table thead tr th:nth-child(12) {
+   width: 100px
+  }

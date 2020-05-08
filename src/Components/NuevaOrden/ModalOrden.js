@@ -23,7 +23,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 
 
-function ModalOrden({ setOpenProps, handleCloseModalCliente, Ciudades, setRecargarClientes,  ReportClientes }) {
+
+function ModalOrden({   setRecargarColegios ,setCurrentDistrito ,Colegios , Distritos , setOpenProps, handleCloseModalCliente, Ciudades, setRecargarClientes,  ReportClientes }) {
     // const [open, setOpen] = React.useState(setOpenProps);
 
  
@@ -79,6 +80,11 @@ function ModalOrden({ setOpenProps, handleCloseModalCliente, Ciudades, setRecarg
                                         btnSeleccionar={true}
                                         btnNuevoCliente ={true}
 
+                                        Distritos={Distritos}
+                                        Colegios={Colegios}
+                                        setCurrentDistrito={setCurrentDistrito}
+                                        setRecargarColegios={setRecargarColegios}
+                              
                                     ></Clientes>
 
 

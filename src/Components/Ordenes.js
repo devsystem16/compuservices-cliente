@@ -111,7 +111,7 @@ class Ordenes extends Component {
             _.forEach(jsonFallas, function (value, key) {
                 cadenaFallas += value.LABEL + ", "
             })
-            cadenaFallas = cadenaFallas.slice(3, -2);
+            cadenaFallas = cadenaFallas.slice(0, -2);
             dataBruta.falla = cadenaFallas;
         }
 
@@ -145,7 +145,25 @@ class Ordenes extends Component {
             setOpenProps: true
         })
     }
+    procesardata = (resultado) => {
 
+        const dataArreglada = []
+        const dataBruta = resultado.data
+        _.forEach(dataBruta, function (value, key) {
+            if (value.FALLA !== undefined) {
+                if (value.FALLA !== "" && value.FALLA !== null) {
+                    var jsonFallas = JSON.parse(value.FALLA)
+                    var cadenaFallas = "";
+                    _.forEach(jsonFallas, function (value, key) {
+                        cadenaFallas += value.label + ", "
+                    })
+                    value.FALLA = cadenaFallas.slice(0, -2).toUpperCase();
+                }
+            }
+            dataArreglada.push(value)
+        })
+        return dataArreglada;
+    }
     descargarExcel(csvData, fileName) {
 
         var options = { year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -153,12 +171,16 @@ class Ordenes extends Component {
         var fin = moment(this.state.fechaFin).format("YYYY-MM-DD")//    moment(new Date(this.state.fechaFin).toLocaleDateString([], options)).format("YYYY-MM-DD")
 
 
-        axios.get(`${API_GET_REPORTE_ORDEN_GARANTIA}/${inicio}/${fin}`).then(response => {
+        axios.get(`${API_GET_REPORTE_ORDEN_GARANTIA}/${inicio}/${fin}`).then(resultado => {
+
+            let dataArreglada = []
+            dataArreglada = this.procesardata(resultado)
+
 
             const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
             const fileExtension = '.xlsx';
 
-            const ws = XLSX.utils.json_to_sheet(response.data);
+            const ws = XLSX.utils.json_to_sheet(dataArreglada);
             const wb = { Sheets: { 'Reporte uso de garantia': ws }, SheetNames: ['Reporte uso de garantia'] };
 
 

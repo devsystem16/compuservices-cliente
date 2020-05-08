@@ -168,6 +168,24 @@ class Clientes extends Component {
                     sort: false,
                 }
             }
+            ,
+            {
+                name: "distritonombre",
+                label: "Distrito",
+                options: {
+                    filter: true,
+                    sort: false,
+                }
+            }
+,  {
+    name: "institucioneducativanombre",
+    label: "IE",
+    options: {
+        filter: true,
+        sort: false,
+    }
+}
+
 
             , {
                 name: "",
@@ -290,7 +308,7 @@ class Clientes extends Component {
 
         return (
 
-            <div id="tablaDatos">
+            <div id="tablaDatos" className="deClientes">
 
                 <Fab className="flotante" style={this.state.btnNuevoCliente} size="small" color="primary" aria-label="Add" onClick={this.setOpenProps} >
                     <AddIcon />

@@ -44,7 +44,7 @@ import PeopleAlt from '@material-ui/icons/NaturePeopleOutlined';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 
 
-import { TIME_FOR_LOGOUT_INACTIVE , API_CATALOGO_FALLAS, API_COLEGIOS, API_DISTRITO, ROL_HAITECH, API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
+import { TIME_FOR_LOGOUT_INACTIVE, API_CATALOGO_FALLAS, API_COLEGIOS, API_DISTRITO, ROL_HAITECH, API_GE_ROL, API_GET_LISTADO_USUARIOS_ROL, API_MARCA, API_REPORTE_ORDENES, ROL_ADMINISTRADOR, API_TIPO_EQUIPO, API_STATUS, API_CLIENTES, API_CIUDAD, API_GET_GARANTIAS, API_CLIENTES_DESCONCATENADO, API_GET_ESTADOS_ORDEN, API_GET_TECNICOS_ADMINISTRADORES } from '../Constantes'
 
 
 const drawerWidth = 240;
@@ -197,15 +197,15 @@ function Menu(props) {
         history.push('/login')
     }
 
-    function verificarSessionInactiva (){
-        
+    function verificarSessionInactiva() {
+
         var interval = 1000;
         var IDLE_TIMEOUT = TIME_FOR_LOGOUT_INACTIVE;
         var idleCounter = 0;
         document.onmousemove = document.onkeypress = function () {
             idleCounter = 0;
         }
-        const tiempo=   window.setInterval(function () {
+        const tiempo = window.setInterval(function () {
             // console.log(idleCounter)
             if (++idleCounter >= IDLE_TIMEOUT) {
                 console.log('Login  Again')
@@ -385,7 +385,7 @@ function Menu(props) {
                         _.forEach(jsonFallas, function (value, key) {
                             cadenaFallas += value.LABEL + ", "
                         })
-                        value.falla = cadenaFallas.slice(3, -2);
+                        value.falla = cadenaFallas.slice(0, -2);
                     }
 
 
@@ -422,6 +422,9 @@ function Menu(props) {
                         , direccion: cliente.direccion
                         , correo: cliente.correo
                         , ciudad: cliente.ciudad
+                        , distritonombre: cliente.distritonombre
+                        , institucioneducativanombre: cliente.institucioneducativanombre
+
                     }
                     reporteClientes.push(unCliente)
                 })
@@ -435,9 +438,9 @@ function Menu(props) {
         }
 
 
-     
-        const tiempo= verificarSessionInactiva()
-        return () => { clearInterval(tiempo) ;  console.log("Destroy for inactivity") }
+
+        const tiempo = verificarSessionInactiva()
+        return () => { clearInterval(tiempo); console.log("Destroy for inactivity") }
 
 
     }, [recargarProductos, recargarClientes, recargarUsuarios, recargarComboUsuario, recargarCombos, recargarColegios])
@@ -583,6 +586,7 @@ function Menu(props) {
                                         <OrdenesGarantia
                                             Reporteordenes={ReporteOrdenesProesada}
                                             guardarRecargarProductos={guardarRecargarProductos}
+
                                         ></OrdenesGarantia>
                                     )}
                                 />
@@ -591,7 +595,8 @@ function Menu(props) {
                                     render={() => (
                                         <Clientes
                                             titulo="Clientes"
-                                            ReportClientes={ReportClientes} Ciudades={Ciudades}
+                                            ReportClientes={ReportClientes}
+                                            Ciudades={Ciudades}
                                             Distritos={Distritos}
                                             Colegios={Colegios}
                                             setCurrentDistrito={setCurrentDistrito}
@@ -637,6 +642,11 @@ function Menu(props) {
                                                 estadosOrden={estadosOrden}
                                                 garantias={garantias}
                                                 guardarRecargarProductos={guardarRecargarProductos}
+                                                Distritos={Distritos}
+                                                Colegios={Colegios}
+                                                setCurrentDistrito={setCurrentDistrito}
+                                                setRecargarColegios={setRecargarColegios}
+
                                             ></EditarOrden>
                                         )
 
@@ -687,6 +697,15 @@ function Menu(props) {
                                             setRecargarCombos={setRecargarCombos}
                                             catalogFallas={catalogFallas}
                                             setRecargarCombos={setRecargarCombos}
+
+
+                                            Distritos={Distritos}
+                                            Colegios={Colegios}
+                                            setCurrentDistrito={setCurrentDistrito}
+                                            setRecargarColegios={setRecargarColegios}
+
+
+
                                         ></FRM>
                                     )}
                                 />
